@@ -48,7 +48,10 @@ require_once '../includes/header.php';
 <div class="page-hero"><h1>Order Management</h1><p>Admin Panel</p></div>
 <div class="admin-wrap">
     <div class="admin-topbar">
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;align-items:center">
+            <a href="/admin/orders.php"   class="btn btn-outline btn-sm" style="<?= strpos($_SERVER['REQUEST_URI'],'orders')!==false?'background:var(--primary);color:#fff;border-color:var(--primary)':'' ?>"><i class="fas fa-receipt"></i> Orders</a>
+            <a href="/admin/products.php" class="btn btn-outline btn-sm"><i class="fas fa-box-open"></i> Products</a>
+        </div>
             <form method="GET" style="display:flex;gap:8px;align-items:center">
                 <input type="hidden" name="status" value="<?= e($status) ?>">
                 <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--gray-200);border-radius:var(--radius-md);background:var(--white)">

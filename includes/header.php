@@ -85,7 +85,8 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
                     <a href="/account/settings.php" class="drop-item"><i class="fas fa-cog"></i> Settings</a>
                     <?php if ($__user['role'] === 'admin'): ?>
                     <div class="drop-divider"></div>
-                    <a href="/admin/orders.php" class="drop-item" style="color:var(--gold)"><i class="fas fa-shield-alt" style="color:var(--gold)"></i> Admin Panel</a>
+                    <a href="/admin/orders.php" class="drop-item" style="color:var(--gold)"><i class="fas fa-shield-alt" style="color:var(--gold)"></i> Admin — Orders</a>
+                    <a href="/admin/products.php" class="drop-item" style="color:var(--gold)"><i class="fas fa-box-open" style="color:var(--gold)"></i> Admin — Products</a>
                     <?php endif; ?>
                     <div class="drop-divider"></div>
                     <!-- Logout uses POST + CSRF to prevent logout CSRF attacks -->
