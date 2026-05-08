@@ -5,6 +5,8 @@ require_once '../../includes/functions.php';
 header('Content-Type: application/json');
 if (!is_post()) json_error('Method not allowed', 405);
 
+verify_csrf_api();
+
 $body = json_decode(file_get_contents('php://input'), true) ?? [];
 $data = [
     'email'      => trim($body['email']      ?? post('email')),

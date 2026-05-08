@@ -1,3 +1,6 @@
+// ─── CSRF Token (read once from meta tag) ────────────────────────
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
 // ─── Mobile Menu ──────────────────────────────────────────────────
 const menuToggle = document.getElementById('menuToggle');
 const mobileMenu = document.getElementById('mobileMenu');
@@ -32,14 +35,22 @@ function showNotification(message, type = 'success') {
     setTimeout(() => el.remove(), 3000);
 }
 
+// ─── Authenticated fetch (always sends CSRF header) ───────────────
+async function apiFetch(url, body) {
+    return fetch(url, {
+        method:  'POST',
+        headers: {
+            'Content-Type':  'application/json',
+            'X-CSRF-Token':  CSRF_TOKEN,
+        },
+        body: JSON.stringify(body),
+    });
+}
+
 // ─── Cart AJAX ────────────────────────────────────────────────────
 async function addToCart(productId, quantity = 1) {
     try {
-        const res  = await fetch('/api/cart/add.php', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ product_id: productId, quantity })
-        });
+        const res  = await apiFetch('/api/cart/add.php', { product_id: productId, quantity });
         const data = await res.json();
         if (data.success) {
             updateCartUI(data.cart_count, data.cart_total);
@@ -54,11 +65,7 @@ async function addToCart(productId, quantity = 1) {
 
 async function removeFromCart(itemId) {
     try {
-        const res  = await fetch('/api/cart/remove.php', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ item_id: itemId })
-        });
+        const res  = await apiFetch('/api/cart/remove.php', { item_id: itemId });
         const data = await res.json();
         if (data.success) {
             updateCartUI(data.cart_count, data.cart_total);
@@ -75,11 +82,7 @@ async function removeFromCart(itemId) {
 async function updateCartQty(itemId, quantity) {
     if (quantity < 1) { removeFromCart(itemId); return; }
     try {
-        const res  = await fetch('/api/cart/update.php', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ item_id: itemId, quantity })
-        });
+        const res  = await apiFetch('/api/cart/update.php', { item_id: itemId, quantity });
         const data = await res.json();
         if (data.success) {
             updateCartUI(data.cart_count, data.cart_total);

@@ -4,6 +4,8 @@ require_once '../../includes/functions.php';
 require_login();
 if (!is_post()) redirect('/account/orders.php');
 
+verify_csrf_form('/account/orders.php');
+
 $orderId  = (int)post('order_id');
 $userId   = $_SESSION['user_id'];
 $redirect = post('redirect', '/account/orders.php');

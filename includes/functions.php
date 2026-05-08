@@ -33,6 +33,32 @@ function verify_csrf(?string $token): bool {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], (string)$token);
 }
 
+/**
+ * Verify CSRF for form POST (from $_POST) or JSON API (from X-CSRF-Token header).
+ * Calls json_error() and exits on failure — use in API endpoints.
+ */
+function verify_csrf_api(): void {
+    // Check header first (JS fetch calls), then fall back to POST body
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN']
+          ?? (json_decode(file_get_contents('php://input'), true)['csrf_token'] ?? null);
+
+    if (!verify_csrf($token)) {
+        json_error('Invalid or missing CSRF token', 403);
+    }
+}
+
+/**
+ * Verify CSRF for standard HTML form POSTs.
+ * Redirects to $redirect on failure — use in page-level form handlers.
+ */
+function verify_csrf_form(string $redirect = '/'): void {
+    if (!verify_csrf($_POST['csrf_token'] ?? null)) {
+        $_SESSION['flash_error'] = 'Security token mismatch. Please try again.';
+        header("Location: $redirect");
+        exit;
+    }
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────
 function get_or_create_cart(): int {
     $userId      = $_SESSION['user_id'] ?? null;
@@ -118,6 +144,9 @@ function get_products(array $filters = [], int $page = 1, int $limit = 12): arra
     if (!empty($filters['max_price'])) {
         $where[]  = "COALESCE(p.sale_price, p.price) <= ?";
         $params[] = (float)$filters['max_price'];
+    }
+    if (!empty($filters['is_featured'])) {
+        $where[]  = "p.is_featured = 1";
     }
 
     $order = match ($filters['sort'] ?? '') {

@@ -7,6 +7,8 @@ $msg  = '';
 $err  = '';
 
 if (is_post()) {
+    verify_csrf_form('/account/settings.php');
+
     $stmt = db()->prepare("UPDATE users SET first_name=?,last_name=?,phone=? WHERE id=?");
     $stmt->execute([trim(post('first_name')), trim(post('last_name')), trim(post('phone')), $user['id']]);
     $msg = 'Profile updated successfully!';
@@ -77,7 +79,9 @@ require_once '../includes/header.php';
         <div class="card danger-card">
             <div class="card-header" style="color:#c53030"><i class="fas fa-exclamation-triangle" style="color:#e53e3e"></i> Danger Zone</div>
             <p style="font-size:14px;color:var(--gray-500);margin-bottom:16px">Permanently delete your account and all associated data. This cannot be undone.</p>
-            <form method="POST" action="/api/auth/logout.php" onsubmit="return confirm('Delete your account? This cannot be undone.')">
+            <!-- Posts to the dedicated delete endpoint, not logout -->
+            <form method="POST" action="/api/auth/delete.php" onsubmit="return confirm('Permanently delete your account? This cannot be undone.')">
+                <?= csrf_field() ?>
                 <button type="submit" class="btn btn-danger">Delete Account</button>
             </form>
         </div>

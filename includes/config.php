@@ -9,6 +9,12 @@ define('SITE_NAME', 'ElevionSupply');
 define('SITE_URL', 'http://localhost');
 define('SESSION_LIFETIME', 86400 * 7); // 7 days
 
+// Detect HTTPS for secure cookie flag
+define('IS_HTTPS', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+    || (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+);
+
 function db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
@@ -32,7 +38,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
         'path'     => '/',
-        'secure'   => false,
+        'secure'   => IS_HTTPS,   // true when served over HTTPS
         'httponly' => true,
         'samesite' => 'Lax',
     ]);

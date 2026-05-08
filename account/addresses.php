@@ -6,6 +6,8 @@ $user = auth_user();
 
 // Handle form submit
 if (is_post()) {
+    verify_csrf_form('/account/addresses.php');
+
     $action = post('action');
     if ($action === 'add' || $action === 'edit') {
         $addrId = (int)post('addr_id');

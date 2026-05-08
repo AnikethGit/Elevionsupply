@@ -17,6 +17,8 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($pageTitle === 'ElevionSupply' ? $pageTitle : "$pageTitle | ElevionSupply") ?></title>
     <meta name="description" content="<?= e($pageDescription) ?>">
+    <!-- CSRF token available to all JS on the page -->
+    <meta name="csrf-token" content="<?= csrf_token() ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -79,7 +81,13 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
                     <a href="/account/addresses.php" class="drop-item"><i class="fas fa-map-marker-alt"></i> Addresses</a>
                     <a href="/account/settings.php" class="drop-item"><i class="fas fa-cog"></i> Settings</a>
                     <div class="drop-divider"></div>
-                    <a href="/api/auth/logout.php" class="drop-item"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    <!-- Logout uses POST + CSRF to prevent logout CSRF attacks -->
+                    <form method="POST" action="/api/auth/logout.php" style="margin:0">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <button type="submit" class="drop-item" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit;padding:10px 16px">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </button>
+                    </form>
                 </div>
             </div>
             <?php else: ?>
@@ -108,7 +116,10 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
         <?php if ($__user): ?>
         <a href="/account/index.php" class="mobile-link">My Account</a>
         <a href="/account/orders.php" class="mobile-link">My Orders</a>
-        <a href="/api/auth/logout.php" class="mobile-link">Sign Out</a>
+        <form method="POST" action="/api/auth/logout.php" style="margin:0">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <button type="submit" class="mobile-link" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit">Sign Out</button>
+        </form>
         <?php else: ?>
         <a href="/login.php" class="mobile-link">Sign In</a>
         <a href="/register.php" class="mobile-link">Register</a>

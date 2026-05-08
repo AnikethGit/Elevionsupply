@@ -7,6 +7,9 @@ $error    = '';
 $redirect = get('redirect', '/account/index.php');
 
 if (is_post()) {
+    // Verify CSRF before processing credentials
+    verify_csrf_form('/login.php');
+
     $result = login_user(post('email'), post('password'));
     if ($result['success']) redirect($redirect);
     else $error = $result['message'];

@@ -1,6 +1,10 @@
 <?php
 require_once '../../includes/functions.php';
 
+if (!is_post()) json_error('Method not allowed', 405);
+
+verify_csrf_api();
+
 $body     = json_decode(file_get_contents('php://input'), true) ?? [];
 $itemId   = (int)($body['item_id']  ?? 0);
 $quantity = (int)($body['quantity'] ?? 0);

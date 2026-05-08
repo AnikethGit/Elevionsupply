@@ -5,6 +5,8 @@ if (is_logged_in()) redirect('/account/index.php');
 
 $error = '';
 if (is_post()) {
+    verify_csrf_form('/register.php');
+
     if (post('password') !== post('confirm_password')) $error = 'Passwords do not match';
     else {
         $result = register_user($_POST);

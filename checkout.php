@@ -244,10 +244,11 @@ async function placeOrder() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     try {
-        const res  = await fetch('/api/checkout/process.php', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ ...orderData.payment, card_number: orderData.payment.card_number, shipping: orderData.shipping })
+        // apiFetch (defined in main.js) automatically attaches the X-CSRF-Token header
+        const res  = await apiFetch('/api/checkout/process.php', {
+            ...orderData.payment,
+            card_number: orderData.payment.card_number,
+            shipping:    orderData.shipping,
         });
         const data = await res.json();
         if (data.success) {
