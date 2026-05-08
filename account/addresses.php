@@ -15,11 +15,12 @@ if (is_post()) {
         if ($action === 'add') {
             $stmt = db()->prepare("INSERT INTO addresses (user_id,type,first_name,last_name,street_address,apt_suite,city,state_province,postal_code,country,phone,is_default) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
             $stmt->execute([$user['id'], ...$data]);
+            $addrId = (int)db()->lastInsertId(); // capture immediately after INSERT
         } else {
             $stmt = db()->prepare("UPDATE addresses SET type=?,first_name=?,last_name=?,street_address=?,apt_suite=?,city=?,state_province=?,postal_code=?,country=?,phone=?,is_default=? WHERE id=? AND user_id=?");
             $stmt->execute([...$data, $addrId, $user['id']]);
         }
-        if (post('is_default')) db()->prepare("UPDATE addresses SET is_default=0 WHERE user_id=? AND id!=?")->execute([$user['id'], $addrId ?: db()->lastInsertId()]);
+        if (post('is_default')) db()->prepare("UPDATE addresses SET is_default=0 WHERE user_id=? AND id!=?")->execute([$user['id'], $addrId]);
         redirect('/account/addresses.php?saved=1');
     } elseif ($action === 'delete') {
         db()->prepare("DELETE FROM addresses WHERE id=? AND user_id=?")->execute([(int)post('addr_id'), $user['id']]);

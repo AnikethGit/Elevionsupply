@@ -78,17 +78,9 @@ $total    = $subtotal + $shipping + $tax;
 
 <script>
 async function changeItemQty(itemId, qty) {
+    // updateCartQty (main.js) handles the API call, cart header UI, row removal
+    // when qty < 1, and calls refreshCartTotals() — no second fetch needed here.
     await updateCartQty(itemId, qty);
-    if (qty < 1) {
-        document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-    } else {
-        const res  = await fetch('/api/cart/update.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({item_id:itemId,quantity:qty}) });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById(`qty-${itemId}`).textContent = qty;
-            refreshCartTotals(data);
-        }
-    }
 }
 function refreshCartTotals(data) {
     if (!data.items) return;

@@ -47,8 +47,9 @@ $stepMap = ['pending'=>0,'processing'=>1,'shipped'=>2,'delivered'=>3];
             <?php $current = $stepMap[$order['status']] ?? 0; ?>
             <?php foreach ($steps as $i => $step): ?>
             <div class="tp-step <?= $i<=$current?'done':'' ?> <?= $i===$current?'active':'' ?>">
-                <div class="tp-icon"><?= $i<$current?'<i class="fas fa-check"></i>':['fas fa-check-circle','fas fa-cog','fas fa-shipping-fast','fas fa-box-open'][$i]?>
-                    <?php if ($i>=$current && !($i<$current)): ?><i class="<?= ['fas fa-check-circle','fas fa-cog','fas fa-shipping-fast','fas fa-box-open'][$i] ?>"></i><?php endif; ?>
+                <div class="tp-icon">
+                    <?php $stepIcons = ['fas fa-check-circle','fas fa-cog','fas fa-shipping-fast','fas fa-box-open']; ?>
+                    <i class="<?= $i < $current ? 'fas fa-check' : $stepIcons[$i] ?>"></i>
                 </div>
                 <span><?= $step ?></span>
                 <?php if ($i < count($steps)-1): ?><div class="tp-line <?= $i<$current?'done':'' ?>"></div><?php endif; ?>

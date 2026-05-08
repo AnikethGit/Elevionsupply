@@ -35,7 +35,7 @@ $sections = [
         <div class="faq-list">
             <?php foreach ($faqs as $i => $faq): ?>
             <div class="faq-item" id="faq-<?= $section.$i ?>">
-                <button class="faq-question" onclick="toggleFaq(this)">
+                <button class="faq-question">
                     <span><?= e($faq[0]) ?></span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
@@ -54,12 +54,4 @@ $sections = [
         </div>
     </div>
 </div>
-<script>
-function toggleFaq(btn) {
-    const item = btn.closest('.faq-item');
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
-}
-</script>
 <?php require_once '../includes/footer.php'; ?>
