@@ -238,10 +238,21 @@ function get_orders(int $userId, array $filters = [], int $page = 1): array {
     $stmt->execute($params);
     $orders = $stmt->fetchAll();
 
-    foreach ($orders as &$order) {
-        $itemsStmt = db()->prepare("SELECT * FROM order_items WHERE order_id = ?");
-        $itemsStmt->execute([$order['id']]);
-        $order['items'] = $itemsStmt->fetchAll();
+    // Fetch all items for all orders in one query instead of N separate queries
+    if (!empty($orders)) {
+        $ids          = array_column($orders, 'id');
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $itemsStmt    = db()->prepare("SELECT * FROM order_items WHERE order_id IN ($placeholders)");
+        $itemsStmt->execute($ids);
+
+        $itemsByOrder = [];
+        foreach ($itemsStmt->fetchAll() as $item) {
+            $itemsByOrder[$item['order_id']][] = $item;
+        }
+        foreach ($orders as &$order) {
+            $order['items'] = $itemsByOrder[$order['id']] ?? [];
+        }
+        unset($order);
     }
 
     return ['data' => $orders, 'pagination' => ['total' => $total, 'page' => $page, 'pages' => (int)ceil($total / $limit)]];

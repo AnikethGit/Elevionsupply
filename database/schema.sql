@@ -194,4 +194,4 @@ INSERT INTO products (name, slug, sku, description, price, sale_price, stock_qua
 
 -- Demo admin user (password: Admin123!)
 INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES
-('admin@elevionsupply.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin');
+('admin@elevionsupply.com', '$2b$10$lSnnzj8Egqr3VuMTudXJ4uHQfyofXi2R0bIVVfPf32fycJCxAliEO', 'Admin', 'User', 'admin');
