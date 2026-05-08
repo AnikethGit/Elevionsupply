@@ -1,0 +1,87 @@
+<?php
+require_once '../../../includes/auth.php';
+require_once '../../../includes/functions.php';
+require_once '../../../includes/admin.php';
+require_admin();
+
+if (!is_post()) json_error('Method not allowed', 405);
+verify_csrf_api();
+
+$body = json_decode(file_get_contents('php://input'), true) ?? [];
+
+// Validate items
+$items = array_values($body['items'] ?? []);
+if (empty($items)) json_error('Add at least one product.');
+
+// Validate shipping fields
+foreach (['ship_first','ship_last','ship_street','ship_city','ship_zip'] as $f) {
+    if (empty(trim($body[$f] ?? ''))) json_error("Missing required shipping field: $f");
+}
+
+$db = db();
+$db->beginTransaction();
+try {
+    // ── Shipping address ──────────────────────────────────────────
+    $userId = !empty($body['customer_id']) ? (int)$body['customer_id'] : null;
+    $db->prepare("INSERT INTO addresses
+        (user_id,type,first_name,last_name,street_address,apt_suite,city,state_province,postal_code,country)
+        VALUES (?,?,?,?,?,?,?,?,?,?)")
+       ->execute([$userId,'shipping',
+            trim($body['ship_first']), trim($body['ship_last']),
+            trim($body['ship_street']), trim($body['ship_apt'] ?? ''),
+            trim($body['ship_city']), trim($body['ship_state'] ?? ''),
+            trim($body['ship_zip']), $body['ship_country'] ?? 'United States']);
+    $addrId = (int)$db->lastInsertId();
+
+    // ── Fetch products and calculate totals ───────────────────────
+    $subtotal = 0;
+    $lines    = [];
+    foreach ($items as $item) {
+        $pid = (int)($item['product_id'] ?? 0);
+        $qty = max(1, (int)($item['quantity'] ?? 1));
+        $p   = get_product($pid);
+        if (!$p) { $db->rollBack(); json_error("Product ID $pid not found."); }
+        $price    = isset($item['unit_price']) ? (float)$item['unit_price'] : $p['display_price'];
+        $subtotal += $price * $qty;
+        $lines[]  = ['product_id'=>$pid,'name'=>$p['name'],'sku'=>$p['sku'],'qty'=>$qty,'price'=>$price];
+    }
+    $shipping = $subtotal >= 150 ? 0 : 9.99;
+    $tax      = round($subtotal * 0.08875, 2);
+    $total    = $subtotal + $shipping + $tax;
+
+    // ── Create order ──────────────────────────────────────────────
+    $orderNum       = generate_order_number();
+    $paymentMethod  = $body['payment_method']  ?? 'credit_card';
+    $paymentStatus  = $body['payment_status']  ?? 'paid';
+    $orderStatus    = $body['order_status']    ?? 'pending';
+    $notes          = trim($body['notes']      ?? '');
+
+    $db->prepare("INSERT INTO orders
+        (user_id,order_number,status,subtotal,tax_amount,shipping_cost,total_amount,
+         shipping_address_id,payment_method,payment_status,notes)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+       ->execute([$userId,$orderNum,$orderStatus,$subtotal,$tax,$shipping,$total,
+                  $addrId,$paymentMethod,$paymentStatus,$notes]);
+    $orderId = (int)$db->lastInsertId();
+
+    // ── Order items ───────────────────────────────────────────────
+    $iStmt = $db->prepare("INSERT INTO order_items
+        (order_id,product_id,product_name,product_sku,quantity,unit_price,subtotal)
+        VALUES (?,?,?,?,?,?,?)");
+    foreach ($lines as $l) {
+        $iStmt->execute([$orderId,$l['product_id'],$l['name'],$l['sku'],$l['qty'],$l['price'],$l['price']*$l['qty']]);
+    }
+
+    // ── Payment record ────────────────────────────────────────────
+    $txnId = 'ADM-' . strtoupper(bin2hex(random_bytes(6)));
+    $db->prepare("INSERT INTO payments (order_id,amount,method,status,transaction_id)
+        VALUES (?,?,?,?,?)")
+       ->execute([$orderId,$total,$paymentMethod,$paymentStatus,$txnId]);
+
+    $db->commit();
+    json_success(['order_id' => $orderId, 'order_number' => $orderNum], 'Order created');
+
+} catch (Exception $e) {
+    $db->rollBack();
+    json_error('Failed to create order: ' . $e->getMessage(), 500);
+}

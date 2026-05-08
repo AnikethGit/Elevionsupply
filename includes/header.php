@@ -48,6 +48,9 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
             <a href="/catalog.php?category=laptops" class="nav-link">Laptops</a>
             <a href="/catalog.php?category=accessories" class="nav-link">Accessories</a>
             <a href="/catalog.php" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'catalog') !== false ? 'active' : '' ?>">All Products</a>
+            <?php if ($__user && $__user['role'] === 'admin'): ?>
+            <a href="/admin/orders.php" class="nav-link" style="color:var(--gold);font-weight:700"><i class="fas fa-shield-alt"></i> Admin</a>
+            <?php endif; ?>
         </nav>
 
         <!-- Right Actions -->
@@ -80,6 +83,10 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
                     <a href="/account/orders.php" class="drop-item"><i class="fas fa-box"></i> My Orders</a>
                     <a href="/account/addresses.php" class="drop-item"><i class="fas fa-map-marker-alt"></i> Addresses</a>
                     <a href="/account/settings.php" class="drop-item"><i class="fas fa-cog"></i> Settings</a>
+                    <?php if ($__user['role'] === 'admin'): ?>
+                    <div class="drop-divider"></div>
+                    <a href="/admin/orders.php" class="drop-item" style="color:var(--gold)"><i class="fas fa-shield-alt" style="color:var(--gold)"></i> Admin Panel</a>
+                    <?php endif; ?>
                     <div class="drop-divider"></div>
                     <!-- Logout uses POST + CSRF to prevent logout CSRF attacks -->
                     <form method="POST" action="/api/auth/logout.php" style="margin:0">
@@ -116,6 +123,9 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
         <?php if ($__user): ?>
         <a href="/account/index.php" class="mobile-link">My Account</a>
         <a href="/account/orders.php" class="mobile-link">My Orders</a>
+        <?php if ($__user['role'] === 'admin'): ?>
+        <a href="/admin/orders.php" class="mobile-link" style="color:var(--gold);font-weight:700"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+        <?php endif; ?>
         <form method="POST" action="/api/auth/logout.php" style="margin:0">
             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <button type="submit" class="mobile-link" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit">Sign Out</button>

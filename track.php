@@ -88,6 +88,12 @@ $stepMap = ['pending'=>0,'processing'=>1,'shipped'=>2,'delivered'=>3];
         <div style="display:flex;gap:12px">
             <a href="/catalog.php" class="btn btn-primary">Continue Shopping</a>
             <a href="/account/orders.php" class="btn btn-outline">All Orders</a>
+            <?php if (!in_array($order['status'], ['cancelled','refunded'])): ?>
+            <a href="/api/invoice/download.php?order=<?= urlencode($order['order_number']) ?>"
+               class="btn btn-invoice" target="_blank">
+                <i class="fas fa-file-pdf"></i> Download Invoice
+            </a>
+            <?php endif; ?>
         </div>
     </div>
     <?php elseif (!$error): ?>
