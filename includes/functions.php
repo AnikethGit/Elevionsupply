@@ -297,6 +297,32 @@ function e(string $str): string {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Render a product image or fall back to a category emoji.
+ * Returns ready-to-echo HTML — either an <img> tag or an emoji character.
+ *
+ * @param array  $product  Product row (must have 'images' already decoded to array)
+ * @param int    $index    Which image to use (0 = primary)
+ * @param string $style    Extra inline CSS on the <img> tag
+ */
+function product_thumb(array $product, int $index = 0, string $style = 'width:100%;height:100%;object-fit:cover;display:block'): string {
+    $images = $product['images'] ?? [];
+    if (!empty($images[$index])) {
+        $src = '/' . ltrim($images[$index], '/');
+        $alt = e($product['name'] ?? '');
+        return "<img src=\"{$src}\" alt=\"{$alt}\" style=\"{$style}\" loading=\"lazy\">";
+    }
+    static $icons = [
+        'Smartphones'    => '📱',
+        'Earbuds & Audio'=> '🎧',
+        'Laptops'        => '💻',
+        'Computer Parts' => '🖥️',
+        'Accessories'    => '🔌',
+        'Wearables'      => '⌚',
+    ];
+    return $icons[$product['category_name'] ?? ''] ?? '📦';
+}
+
 function status_badge(string $status): string {
     $map = [
         'pending'    => ['label' => 'Pending',    'class' => 'badge-orange'],

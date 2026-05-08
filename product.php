@@ -26,12 +26,28 @@ $related = get_products(['category' => $product['category_slug']], 1, 4);
         <div class="product-layout">
             <!-- Image -->
             <div class="product-gallery">
-                <div class="main-image">
-                    <?php $icons = ['Smartphones'=>'📱','Earbuds & Audio'=>'🎧','Laptops'=>'💻','Computer Parts'=>'🖥️','Accessories'=>'🔌','Wearables'=>'⌚']; ?>
-                    <span class="product-emoji"><?= $icons[$product['category_name']] ?? '📦' ?></span>
+                <div class="main-image" id="mainImage">
+                    <?php if (!empty($product['images'][0])): ?>
+                        <img src="/<?= e(ltrim($product['images'][0],'/')) ?>"
+                             alt="<?= e($product['name']) ?>"
+                             style="width:100%;height:100%;object-fit:contain;border-radius:var(--radius-xl)"
+                             id="mainImg">
+                    <?php else: ?>
+                        <?php $icons = ['Smartphones'=>'📱','Earbuds & Audio'=>'🎧','Laptops'=>'💻','Computer Parts'=>'🖥️','Accessories'=>'🔌','Wearables'=>'⌚']; ?>
+                        <span class="product-emoji"><?= $icons[$product['category_name']] ?? '📦' ?></span>
+                    <?php endif; ?>
                 </div>
                 <?php if ($product['badge']): ?>
                 <span class="gallery-badge product-badge-<?= strtolower(e($product['badge'])) ?>"><?= e($product['badge']) ?></span>
+                <?php endif; ?>
+                <?php if (count($product['images']) > 1): ?>
+                <div class="thumb-strip">
+                    <?php foreach ($product['images'] as $i => $img): ?>
+                    <div class="thumb <?= $i===0?'active':'' ?>" onclick="switchImg(this,'<?= e('/'.ltrim($img,'/')) ?>')">
+                        <img src="/<?= e(ltrim($img,'/')) ?>" alt="<?= e($product['name']) ?> image <?= $i+1 ?>">
+                    </div>
+                    <?php endforeach; ?>
+                </div>
                 <?php endif; ?>
             </div>
 
@@ -117,7 +133,7 @@ $related = get_products(['category' => $product['category_slug']], 1, 4);
             <div class="related-grid">
                 <?php foreach (array_slice($relProducts, 0, 3) as $r): ?>
                 <a href="/product.php?id=<?= $r['id'] ?>" class="related-card">
-                    <div class="related-img"><?= $icons[$r['category_name']] ?? '📦' ?></div>
+                    <div class="related-img"><?= product_thumb($r, 0, 'width:40px;height:40px;object-fit:cover;border-radius:6px') ?></div>
                     <div class="related-info">
                         <h4><?= e($r['name']) ?></h4>
                         <span><?= money($r['display_price']) ?></span>
@@ -130,7 +146,19 @@ $related = get_products(['category' => $product['category_slug']], 1, 4);
     </div>
 </div>
 
+<style>
+.thumb-strip { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.thumb { width:68px; height:68px; border-radius:var(--radius-md); border:2px solid var(--gray-200); overflow:hidden; cursor:pointer; transition:border-color var(--transition); flex-shrink:0; }
+.thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.thumb:hover,.thumb.active { border-color:var(--accent); }
+</style>
 <script>
+function switchImg(el, src) {
+    const main = document.getElementById('mainImg');
+    if (main) main.src = src;
+    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+}
 function changeQty(delta) {
     const input = document.getElementById('qtyInput');
     const max   = parseInt(input.max);

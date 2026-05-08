@@ -105,8 +105,7 @@ function query(array $extra = [], array $remove = []): string {
                 <span class="product-badge product-badge-<?= strtolower(e($p['badge'])) ?>"><?= e($p['badge']) ?></span>
                 <?php endif; ?>
                 <div class="catalog-img">
-                    <?php $icons = ['Smartphones' => '📱','Earbuds & Audio' => '🎧','Laptops' => '💻','Computer Parts' => '🖥️','Accessories' => '🔌','Wearables' => '⌚']; ?>
-                    <span><?= $icons[$p['category_name']] ?? '📦' ?></span>
+                    <?= product_thumb($p) ?>
                 </div>
                 <div class="catalog-info">
                     <div class="catalog-category"><?= e($p['category_name']) ?></div>

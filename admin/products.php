@@ -113,11 +113,14 @@ require_once '../includes/header.php';
             </tr></thead>
             <tbody>
             <?php
-            $icons = ['Smartphones'=>'📱','Earbuds & Audio'=>'🎧','Laptops'=>'💻','Computer Parts'=>'🖥️','Accessories'=>'🔌','Wearables'=>'⌚'];
             foreach ($products as $p):
             ?>
             <tr>
-                <td style="font-size:22px;text-align:center"><?= $icons[$p['category_name']] ?? '📦' ?></td>
+                <td style="width:48px">
+                    <div style="width:44px;height:44px;border-radius:var(--radius-md);overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px">
+                        <?= product_thumb($p, 0, 'width:44px;height:44px;object-fit:cover;display:block') ?>
+                    </div>
+                </td>
                 <td>
                     <strong style="display:block"><?= e($p['name']) ?></strong>
                     <small style="color:var(--gray-500)"><?= $p['badge'] ? '<span style="background:var(--accent);color:var(--primary);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">'.e($p['badge']).'</span>' : '' ?> <?= $p['is_featured']?'⭐':'' ?></small>

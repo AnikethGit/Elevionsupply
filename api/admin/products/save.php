@@ -27,7 +27,8 @@ $isFeatured = (int)(bool)($body['is_featured'] ?? 0);
 $isActive   = (int)(bool)($body['is_active'] ?? 1);
 $rating     = min(5.0, max(0.0, (float)($body['rating'] ?? 0)));
 $reviews    = max(0, (int)($body['review_count'] ?? 0));
-$specs      = json_encode($body['specifications'] ?? new stdClass());
+$specs  = json_encode($body['specifications'] ?? new stdClass());
+$images = json_encode(array_values(array_filter($body['images'] ?? [])));
 
 // Unique slug/sku guard
 $db = db();
@@ -40,9 +41,9 @@ if ($id) {
     if ($dupSku->fetch()) json_error('SKU already in use by another product.');
 
     $db->prepare("UPDATE products SET name=?,slug=?,description=?,sku=?,price=?,sale_price=?,
-        stock_quantity=?,category_id=?,specifications=?,badge=?,is_featured=?,is_active=?,
+        stock_quantity=?,category_id=?,specifications=?,images=?,badge=?,is_featured=?,is_active=?,
         rating=?,review_count=? WHERE id=?")
-       ->execute([$name,$slug,$desc,$sku,$price,$salePrice,$stock,$catId,$specs,
+       ->execute([$name,$slug,$desc,$sku,$price,$salePrice,$stock,$catId,$specs,$images,
                   $badge,$isFeatured,$isActive,$rating,$reviews,$id]);
     json_success(['id' => $id], 'Product updated.');
 } else {
@@ -55,9 +56,9 @@ if ($id) {
 
     $db->prepare("INSERT INTO products
         (name,slug,description,sku,price,sale_price,stock_quantity,category_id,
-         specifications,badge,is_featured,is_active,rating,review_count)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+         specifications,images,badge,is_featured,is_active,rating,review_count)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
        ->execute([$name,$slug,$desc,$sku,$price,$salePrice,$stock,$catId,
-                  $specs,$badge,$isFeatured,$isActive,$rating,$reviews]);
+                  $specs,$images,$badge,$isFeatured,$isActive,$rating,$reviews]);
     json_success(['id' => (int)$db->lastInsertId()], 'Product created.');
 }

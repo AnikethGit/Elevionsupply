@@ -56,7 +56,12 @@ $current = $stepMap[$order['status']] ?? 0;
                 <div class="card-header"><i class="fas fa-box"></i> Items Ordered</div>
                 <?php foreach ($order['items'] as $item): ?>
                 <div class="od-item">
-                    <div class="od-item-img">📦</div>
+                    <div class="od-item-img">
+                        <?php
+                        $pData = get_product((int)$item['product_id']);
+                        echo $pData ? product_thumb($pData, 0, 'width:40px;height:40px;object-fit:cover;border-radius:6px') : '📦';
+                        ?>
+                    </div>
                     <div class="od-item-info"><strong><?= e($item['product_name']) ?></strong><span>SKU: <?= e($item['product_sku']) ?></span><span>Qty: <?= $item['quantity'] ?> × <?= money($item['unit_price']) ?></span></div>
                     <div class="od-item-total"><?= money($item['quantity'] * $item['unit_price']) ?></div>
                 </div>

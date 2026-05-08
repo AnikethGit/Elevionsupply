@@ -55,11 +55,8 @@ $categories = get_categories();
                 <?php if ($p['badge']): ?>
                 <span class="product-badge product-badge-<?= strtolower(e($p['badge'])) ?>"><?= e($p['badge']) ?></span>
                 <?php endif; ?>
-                <div class="product-icon">
-                    <?php
-                    $icons = ['Smartphones' => '📱', 'Audio' => '🎵', 'Earbuds & Audio' => '🎧', 'Laptops' => '💻', 'Computer Parts' => '🖥️', 'Accessories' => '🔌', 'Wearables' => '⌚'];
-                    echo $icons[$p['category_name']] ?? '📦';
-                    ?>
+                <div class="product-icon" style="<?= !empty($p['images'][0]) ? 'padding:0;overflow:hidden;border-radius:8px;' : '' ?>">
+                    <?= product_thumb($p, 0, 'width:100%;height:100%;object-fit:cover;display:block') ?>
                 </div>
                 <div class="product-info">
                     <div class="product-name"><?= e($p['name']) ?></div>
