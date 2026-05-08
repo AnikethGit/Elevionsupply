@@ -5,9 +5,10 @@ require_once '../../../includes/admin.php';
 require_admin();
 
 if (!is_post()) json_error('Method not allowed', 405);
-verify_csrf_api();
+$rawInput = file_get_contents('php://input');
+verify_csrf_api($rawInput);
 
-$body = json_decode(file_get_contents('php://input'), true) ?? [];
+$body = json_decode($rawInput, true) ?? [];
 
 // Validate items
 $items = array_values($body['items'] ?? []);

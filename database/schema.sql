@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- For existing installs: ALTER TABLE users ADD COLUMN notification_prefs JSON DEFAULT NULL;
+-- For existing installs: ALTER TABLE addresses MODIFY COLUMN user_id INT DEFAULT NULL;
 
 -- Password Resets
 CREATE TABLE IF NOT EXISTS password_resets (
@@ -79,7 +80,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- Addresses
 CREATE TABLE IF NOT EXISTS addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT DEFAULT NULL,
     type ENUM('shipping','billing','both') DEFAULT 'shipping',
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,

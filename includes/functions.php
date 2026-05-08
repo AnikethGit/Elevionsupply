@@ -36,11 +36,19 @@ function verify_csrf(?string $token): bool {
 /**
  * Verify CSRF for form POST (from $_POST) or JSON API (from X-CSRF-Token header).
  * Calls json_error() and exits on failure — use in API endpoints.
+ *
+ * Pass $rawBody if you have already read php://input, so the stream
+ * isn't consumed a second time. If omitted and the header is absent,
+ * falls back to reading php://input once.
  */
-function verify_csrf_api(): void {
-    // Check header first (JS fetch calls), then fall back to POST body
-    $token = $_SERVER['HTTP_X_CSRF_TOKEN']
-          ?? (json_decode(file_get_contents('php://input'), true)['csrf_token'] ?? null);
+function verify_csrf_api(?string $rawBody = null): void {
+    if (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+    } else {
+        // Only read php://input if caller hasn't provided it
+        $raw   = $rawBody ?? file_get_contents('php://input');
+        $token = json_decode($raw, true)['csrf_token'] ?? null;
+    }
 
     if (!verify_csrf($token)) {
         json_error('Invalid or missing CSRF token', 403);
