@@ -6,7 +6,7 @@
             'Main'     => ['Home'=>'/','Catalog'=>'/catalog.php','Track Order'=>'/track.php','Sitemap'=>'/sitemap.php'],
             'Shopping' => ['Product Detail'=>'/product.php?id=1','Shopping Cart'=>'/cart.php','Checkout'=>'/checkout.php'],
             'Account'  => ['Dashboard'=>'/account/index.php','My Orders'=>'/account/orders.php','Addresses'=>'/account/addresses.php','Settings'=>'/account/settings.php','Order Detail'=>'/orders/detail.php?id=1'],
-            'Auth'     => ['Sign In'=>'/login.php','Register'=>'/register.php'],
+            'Auth'     => ['Sign In'=>'/login.php','Register'=>'/register.php','Forgot Password'=>'/forgot-password.php','Reset Password'=>'/reset-password.php'],
             'Help'     => ['FAQ'=>'/help/faq.php','Privacy Policy'=>'/help/privacy.php','Shipping Policy'=>'/help/shipping.php','Returns Policy'=>'/help/returns.php','Terms & Conditions'=>'/help/terms.php'],
         ] as $section => $links): ?>
         <div>

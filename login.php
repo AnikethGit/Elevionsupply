@@ -33,7 +33,10 @@ require_once 'includes/header.php';
                 <input type="email" name="email" value="<?= e(post('email')) ?>" required autofocus placeholder="you@example.com">
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label style="display:flex;justify-content:space-between;align-items:center">
+                    Password
+                    <a href="/forgot-password.php" style="font-size:12px;font-weight:600;color:var(--accent-dark)">Forgot password?</a>
+                </label>
                 <input type="password" name="password" required placeholder="••••••••">
             </div>
             <button type="submit" class="btn btn-primary btn-lg auth-submit">Sign In</button>

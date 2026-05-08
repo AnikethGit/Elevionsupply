@@ -15,8 +15,22 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20),
     role ENUM('customer', 'admin') DEFAULT 'customer',
     is_active TINYINT(1) DEFAULT 1,
+    notification_prefs JSON DEFAULT NULL COMMENT 'Keys: order_updates, shipping, promotions, wholesale',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- For existing installs: ALTER TABLE users ADD COLUMN notification_prefs JSON DEFAULT NULL;
+
+-- Password Resets
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(64) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_token (token),
+    INDEX idx_email (email)
 );
 
 -- Sessions

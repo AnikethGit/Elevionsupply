@@ -3,9 +3,14 @@ require_once __DIR__ . '/config.php';
 
 function auth_user(): ?array {
     if (!isset($_SESSION['user_id'])) return null;
-    $stmt = db()->prepare("SELECT id, email, first_name, last_name, phone, role FROM users WHERE id = ? AND is_active = 1");
+    $stmt = db()->prepare("SELECT id, email, first_name, last_name, phone, role, notification_prefs FROM users WHERE id = ? AND is_active = 1");
     $stmt->execute([$_SESSION['user_id']]);
-    return $stmt->fetch() ?: null;
+    $user = $stmt->fetch();
+    if (!$user) return null;
+    $user['notification_prefs'] = $user['notification_prefs']
+        ? json_decode($user['notification_prefs'], true)
+        : ['order_updates' => true, 'shipping' => true, 'promotions' => false, 'wholesale' => false];
+    return $user;
 }
 
 function is_logged_in(): bool {
