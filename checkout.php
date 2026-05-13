@@ -85,9 +85,15 @@ $user     = auth_user();
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" id="ship_phone" value="<?= e($user['phone'] ?? '') ?>">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email * <small style="color:var(--gray-500)">(used to track your order)</small></label>
+                                <input type="email" id="ship_email" value="<?= e($user['email'] ?? '') ?>" placeholder="you@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="ship_phone" value="<?= e($user['phone'] ?? '') ?>">
+                            </div>
                         </div>
                     </div>
                     <button class="btn btn-primary btn-lg" style="width:100%" onclick="goToStep(2)">Continue to Payment →</button>
@@ -183,11 +189,15 @@ function goToStep(n) {
 }
 
 function validateStep1() {
-    const fields = ['ship_first','ship_last','ship_street','ship_city','ship_zip'];
+    const fields = ['ship_first','ship_last','ship_street','ship_city','ship_zip','ship_email'];
     for (const f of fields) {
         if (!document.getElementById(f).value.trim()) {
             showError('Please fill in all required shipping fields.'); return false;
         }
+    }
+    const email = document.getElementById('ship_email').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address.'); return false;
     }
     hideError(); return true;
 }
@@ -212,6 +222,7 @@ function collectStep1() {
         zip:        document.getElementById('ship_zip').value,
         country:    document.getElementById('ship_country').value,
         phone:      document.getElementById('ship_phone').value,
+        email:      document.getElementById('ship_email').value,
     };
 }
 
@@ -230,7 +241,7 @@ function buildReview() {
     document.getElementById('reviewContent').innerHTML = `
         <div class="review-section">
             <div class="review-label">Shipping To</div>
-            <p>${s.first_name} ${s.last_name}<br>${s.street}${s.apt?' '+s.apt:''}<br>${s.city}, ${s.state} ${s.zip}<br>${s.country}</p>
+            <p>${s.first_name} ${s.last_name}<br>${s.street}${s.apt?' '+s.apt:''}<br>${s.city}, ${s.state} ${s.zip}<br>${s.country}<br>${s.email}</p>
         </div>
         <div class="review-section">
             <div class="review-label">Payment</div>

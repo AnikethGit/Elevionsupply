@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- For existing installs: ALTER TABLE users ADD COLUMN notification_prefs JSON DEFAULT NULL;
 -- For existing installs: ALTER TABLE addresses MODIFY COLUMN user_id INT DEFAULT NULL;
+-- For existing installs: ALTER TABLE addresses ADD COLUMN email VARCHAR(255) DEFAULT NULL;
 
 -- Password Resets
 CREATE TABLE IF NOT EXISTS password_resets (
@@ -91,6 +92,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     postal_code VARCHAR(20) NOT NULL,
     country VARCHAR(100) DEFAULT 'United States',
     phone VARCHAR(20),
+    email VARCHAR(255),
     is_default TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

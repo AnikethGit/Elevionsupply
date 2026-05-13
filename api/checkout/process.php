@@ -80,11 +80,11 @@ try {
         $stmt = $db->prepare("
             INSERT INTO addresses
                 (user_id, type, first_name, last_name, street_address,
-                 apt_suite, city, state_province, postal_code, country, phone)
-            VALUES (?, 'shipping', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 apt_suite, city, state_province, postal_code, country, phone, email)
+            VALUES (?, 'shipping', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
-            $userId,                     // NULL for guests — column allows NULL
+            $userId,
             $ship['first_name'] ?? '',
             $ship['last_name']  ?? '',
             $ship['street']     ?? '',
@@ -94,6 +94,7 @@ try {
             $ship['zip']        ?? '',
             $ship['country']    ?? 'United States',
             $ship['phone']      ?? '',
+            $ship['email']      ?? '',   // stored for guest order tracking verification
         ]);
         $shipAddrId = (int)$db->lastInsertId();
     }
