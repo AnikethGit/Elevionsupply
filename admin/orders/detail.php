@@ -121,7 +121,7 @@ $current = $stepMap[$order['status']] ?? 0;
             <div class="card">
                 <div class="card-header"><i class="fas fa-credit-card"></i> Payment</div>
                 <div class="od-summary">
-                    <div class="od-row"><span>Method</span><span><?= e(str_replace('_',' ',$order['payment_method'])) ?></span></div>
+                    <div class="od-row"><span>Method</span><span><?= e(ucwords(str_replace('_',' ',$order['payment_method']))) ?><?php $cl4 = $order['payment']['card_last_four'] ?? ''; if ($cl4 && in_array($order['payment_method'],['credit_card','debit_card'])): ?> <span class="mono" style="color:var(--gray-500)">**** <?= e($cl4) ?></span><?php endif; ?></span></div>
                     <div class="od-row"><span>Status</span><span style="color:#276749;font-weight:700"><?= e($order['payment_status']) ?></span></div>
                     <?php if ($order['payment']['transaction_id']): ?>
                     <div class="od-row"><span>Txn ID</span><span class="mono"><?= e($order['payment']['transaction_id']) ?></span></div>

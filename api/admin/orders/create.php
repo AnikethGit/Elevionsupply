@@ -74,10 +74,12 @@ try {
     }
 
     // ── Payment record ────────────────────────────────────────────
-    $txnId = 'ADM-' . strtoupper(bin2hex(random_bytes(6)));
-    $db->prepare("INSERT INTO payments (order_id,amount,method,status,transaction_id)
-        VALUES (?,?,?,?,?)")
-       ->execute([$orderId,$total,$paymentMethod,$paymentStatus,$txnId]);
+    $txnId     = 'ADM-' . strtoupper(bin2hex(random_bytes(6)));
+    $cardLast4 = preg_replace('/\D/', '', $body['card_last_four'] ?? '');
+    $cardLast4 = strlen($cardLast4) === 4 ? $cardLast4 : null;
+    $db->prepare("INSERT INTO payments (order_id,amount,method,status,transaction_id,card_last_four)
+        VALUES (?,?,?,?,?,?)")
+       ->execute([$orderId,$total,$paymentMethod,$paymentStatus,$txnId,$cardLast4]);
 
     $db->commit();
     json_success(['order_id' => $orderId, 'order_number' => $orderNum], 'Order created');

@@ -312,9 +312,14 @@ $y += 11;
 $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
 $pstat = ucfirst($order['payment_status'] ?? '');
 $txn   = $order['payment']['transaction_id'] ?? '';
-$pdf->text($ML, $y, 'Method: '.$method);
-$pdf->text($ML + 140, $y, 'Status: '.$pstat);
-if ($txn) { $pdf->text($ML + 270, $y, 'Txn: '.$txn); }
+$cardLast4 = $order['payment']['card_last_four'] ?? '';
+$methodDisplay = $method;
+if ($cardLast4 && in_array($order['payment_method'] ?? '', ['credit_card','debit_card'])) {
+    $methodDisplay .= ' **** '.$cardLast4;
+}
+$pdf->text($ML, $y, 'Method: '.$methodDisplay);
+$pdf->text($ML + 180, $y, 'Status: '.$pstat);
+if ($txn) { $pdf->text($ML + 310, $y, 'Txn: '.$txn); }
 
 // ── NOTES ─────────────────────────────────────────────────────────
 if (!empty($order['notes'])) {

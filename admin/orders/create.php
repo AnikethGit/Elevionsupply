@@ -124,12 +124,20 @@ require_once '../../includes/header.php';
 
                     <div class="form-group" style="margin-bottom:16px">
                         <label>Payment Method</label>
-                        <select name="payment_method">
+                        <select name="payment_method" id="paymentMethod" onchange="toggleCardField()">
                             <option value="credit_card">Credit Card</option>
                             <option value="bank_transfer">Bank Transfer</option>
                             <option value="cash">Cash</option>
                             <option value="cheque">Cheque</option>
                         </select>
+                    </div>
+
+                    <div class="form-group" id="cardLastFourWrap" style="margin-bottom:16px">
+                        <label>Card Last 4 Digits <small style="color:var(--gray-500)">(optional)</small></label>
+                        <input type="text" name="card_last_four" id="cardLastFour"
+                               maxlength="4" pattern="\d{4}"
+                               placeholder="e.g. 1234"
+                               style="font-family:monospace;letter-spacing:3px">
                     </div>
 
                     <div class="form-group" style="margin-bottom:16px">
@@ -173,8 +181,15 @@ require_once '../../includes/header.php';
 </div>
 
 <script>
-const csrf = document.querySelector('meta[name="csrf-token"]').content;
+const csrf      = document.querySelector('meta[name="csrf-token"]').content;
 let items = [];   // [{product_id, name, sku, quantity, unit_price}]
+
+function toggleCardField() {
+    const method = document.getElementById('paymentMethod').value;
+    const wrap   = document.getElementById('cardLastFourWrap');
+    wrap.style.display = (method === 'credit_card' || method === 'debit_card') ? 'block' : 'none';
+}
+toggleCardField(); // run on load
 
 // ── Customer search ──────────────────────────────────────────────
 let csTimer;
