@@ -87,6 +87,10 @@ require_once '../../includes/header.php';
                             </select>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Phone</label><input type="tel" name="ship_phone" id="shipPhone" placeholder="+1 (555) 000-0000"></div>
+                        <div class="form-group"><label>Email</label><input type="email" name="ship_email" id="shipEmail" placeholder="customer@example.com"></div>
+                    </div>
                 </div>
 
                 <!-- Products -->
@@ -223,9 +227,11 @@ function selectCustomer(c) {
         `<i class="fas fa-user-check"></i> <strong>${c.first_name} ${c.last_name}</strong> (${c.email})`;
     document.getElementById('customerPreview').style.display = 'flex';
     document.getElementById('guestFields').style.display = 'none';
-    // Pre-fill ship name
-    document.querySelector('[name=ship_first]').value = c.first_name;
-    document.querySelector('[name=ship_last]').value  = c.last_name;
+    // Pre-fill shipping fields from customer
+    document.querySelector('[name=ship_first]').value  = c.first_name;
+    document.querySelector('[name=ship_last]').value   = c.last_name;
+    if (document.getElementById('shipPhone')) document.getElementById('shipPhone').value = c.phone || '';
+    if (document.getElementById('shipEmail')) document.getElementById('shipEmail').value = c.email || '';
 }
 
 function clearCustomer() {

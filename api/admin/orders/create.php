@@ -25,13 +25,14 @@ try {
     // ── Shipping address ──────────────────────────────────────────
     $userId = !empty($body['customer_id']) ? (int)$body['customer_id'] : null;
     $db->prepare("INSERT INTO addresses
-        (user_id,type,first_name,last_name,street_address,apt_suite,city,state_province,postal_code,country)
-        VALUES (?,?,?,?,?,?,?,?,?,?)")
+        (user_id,type,first_name,last_name,street_address,apt_suite,city,state_province,postal_code,country,phone,email)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
        ->execute([$userId,'shipping',
             trim($body['ship_first']), trim($body['ship_last']),
             trim($body['ship_street']), trim($body['ship_apt'] ?? ''),
             trim($body['ship_city']), trim($body['ship_state'] ?? ''),
-            trim($body['ship_zip']), $body['ship_country'] ?? 'United States']);
+            trim($body['ship_zip']), $body['ship_country'] ?? 'United States',
+            trim($body['ship_phone'] ?? ''), trim($body['ship_email'] ?? '')]);
     $addrId = (int)$db->lastInsertId();
 
     // ── Fetch products and calculate totals ───────────────────────

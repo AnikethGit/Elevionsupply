@@ -46,11 +46,13 @@ $date = date('F j, Y', strtotime($order['created_at']));
 $billName  = $cu ? trim($cu['first_name'].' '.$cu['last_name'])
                  : ($addr ? trim($addr['first_name'].' '.$addr['last_name']) : 'Guest');
 $billEmail = $cu['email'] ?? ($addr['email'] ?? '');
-$billPhone = $cu['phone'] ?? '';
+$billPhone = $cu['phone'] ?? ($addr['phone'] ?? '');
 $shipName  = $addr ? trim($addr['first_name'].' '.$addr['last_name']) : $billName;
 $shipLine1 = $addr ? $addr['street_address'].($addr['apt_suite'] ? ', '.$addr['apt_suite'] : '') : '';
 $shipLine2 = $addr ? trim(($addr['city'] ?? '').', '.($addr['state_province'] ?? '').' '.($addr['postal_code'] ?? '')) : '';
 $shipLine3 = $addr['country'] ?? 'United States';
+$shipPhone = $addr['phone'] ?? $billPhone;
+$shipEmail = $addr['email'] ?? $billEmail;
 
 // ── Colours (RGB) ─────────────────────────────────────────────────
 [$NR,$NG,$NB] = [22,  22,  63];   // navy
@@ -140,45 +142,43 @@ $y += 16;
 // ── PARTIES: content row ──────────────────────────────────────────
 $pdf->setFill(255,255,255);
 $rowStartY = $y;
-
-// Estimate row height
 $lineH = 11;
 $bLines = array_filter([$billEmail, $billPhone]);
-$sLines = array_filter([$shipLine1, $shipLine2, $shipLine3]);
-$c3Lines = array_filter([$billPhone, $order['payment_method']]);
-$rowH = max(50, (count($bLines) + 2) * $lineH, (count($sLines) + 2) * $lineH, 60);
-
+$sLines = array_filter([$shipLine1, $shipLine2, $shipLine3, $shipEmail]);
+$rowH   = max(56, (count($bLines) + 2) * $lineH, (count($sLines) + 2) * $lineH, 60);
 $pdf->fillRect($ML, $y, $CW, $rowH);
+$method = ucwords(str_replace('_', ' ', $order['payment_method'] ?? 'Credit Card'));
 
 // Col1: Bill To
-$cy = $y + 8;
-$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
-$pdf->text($ML + 5, $cy, $billName); $cy += $lineH;
+$cy  = $y + 8;
+$cx1 = $ML + 5;
+$pdf->setFont(9, true);  $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($cx1, $cy, $billName); $cy += $lineH;
 $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
 foreach (array_filter([$billEmail, $billPhone]) as $line) {
-    $pdf->text($ML + 5, $cy, $line); $cy += $lineH - 1;
+    $pdf->text($cx1, $cy, $line); $cy += $lineH - 1;
 }
 
 // Col2: Ship To
-$cy = $y + 8;
+$cy  = $y + 8;
 $cx2 = $ML + $colW3 + 5;
-$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->setFont(9, true);  $pdf->setTextColor($IR,$IG,$IB);
 $pdf->text($cx2, $cy, $shipName); $cy += $lineH;
 $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
 foreach (array_filter([$shipLine1, $shipLine2, $shipLine3]) as $line) {
-    if (strlen($line) > 40) $line = substr($line, 0, 38).'...';
+    if (strlen($line) > 38) $line = substr($line, 0, 36).'...';
     $pdf->text($cx2, $cy, $line); $cy += $lineH - 1;
 }
+if ($shipEmail) { $pdf->text($cx2, $cy, $shipEmail); }
 
 // Col3: Phone / Payment Method
-$cy = $y + 8;
+$cy  = $y + 8;
 $cx3 = $ML + 2*$colW3 + 5;
-$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
-$pdf->text($cx3, $cy, $billPhone ?: '—'); $cy += $lineH;
-$pdf->setFont(7, true); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->setFont(9, true);  $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($cx3, $cy, $shipPhone ?: '—'); $cy += $lineH;
+$pdf->setFont(7, true);  $pdf->setTextColor($UR,$UG,$UB);
 $pdf->text($cx3, $cy, 'PAYMENT METHOD'); $cy += 9;
 $pdf->setFont(8.5, true); $pdf->setTextColor($IR,$IG,$IB);
-$method = ucwords(str_replace('_',' ', $order['payment_method'] ?? 'Credit Card'));
 $pdf->text($cx3, $cy, $method);
 
 // Vertical dividers in content row
@@ -391,7 +391,8 @@ $pdf->setFont(8.5, false); $pdf->setTextColor($MR,$MG,$MB);
 foreach (array_filter([$shipLine1, $shipLine2, $shipLine3]) as $line) {
     $pdf->text($ML, $y, $line); $y += 11;
 }
-if ($billEmail) { $pdf->text($ML, $y, $billEmail); $y += 11; }
+if ($shipPhone) { $pdf->text($ML, $y, $shipPhone); $y += 11; }
+if ($shipEmail) { $pdf->text($ML, $y, $shipEmail); $y += 11; }
 
 $y += 6;
 $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
