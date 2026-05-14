@@ -193,10 +193,10 @@ $y = $rowStartY + $rowH + 1;
 // ── ITEMS TABLE header bar ────────────────────────────────────────
 // Columns: QTY | DESCRIPTION | UNIT PRICE | EST. TAX | SUBTOTAL
 $cQtyW  = 30;  $cQtyX  = $ML;
-$cDescX = $ML + 34;  $cDescW = $CW - 34 - 68 - 68 - 76;  // ~282
-$cUnitX = $cDescX + $cDescW;  $cUnitW = 68;
-$cTaxX  = $cUnitX + $cUnitW;  $cTaxW  = 68;
-$cSubX  = $cTaxX  + $cTaxW;   $cSubW  = $MR_edge - $cSubX; // ~76
+$cDescX = $ML + 34;  $cDescW = $CW - 34 - 72 - 72 - 76;  // ~274
+$cUnitX = $cDescX + $cDescW;  $cUnitW = 72;
+$cTaxX  = $cUnitX + $cUnitW;  $cTaxW  = 72;
+$cSubX  = $cTaxX  + $cTaxW;   $cSubW  = $MR_edge - $cSubX;
 
 $hdrH = 18;
 $pdf->setFill($IR,$IG,$IB);
@@ -229,18 +229,13 @@ foreach ($order['items'] as $idx => $item) {
     $lineSub  = $price * $qty;
     $lineTax  = round($lineSub * $taxRate, 2);
     $name     = $item['product_name'];
-    if (strlen($name) > 44) $name = substr($name, 0, 42).'...';
-    $sku      = $item['product_sku'] ?? '';
+    if (strlen($name) > 48) $name = substr($name, 0, 46).'...';
 
     $pdf->setFont(8, true);  $pdf->setTextColor($IR,$IG,$IB);
     $pdf->text($cQtyX + 4, $rY, (string)$qty);
 
     $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
     $pdf->text($cDescX + 2, $rY, $name);
-    if ($sku) {
-        $pdf->setFont(7, false); $pdf->setTextColor($UR,$UG,$UB);
-        $pdf->text($cDescX + 2, $rY + 9, $sku);
-    }
 
     $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
     $pdf->text($cUnitX, $rY, $fmt($price),   'R', $cUnitW - 2);

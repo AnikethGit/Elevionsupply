@@ -152,7 +152,13 @@ require_once '../../includes/header.php';
 
                     <div class="order-total-box">
                         <div class="order-total-row"><span>Subtotal</span><span id="totSubtotal">$0.00</span></div>
-                        <div class="order-total-row"><span>Shipping</span><span id="totShipping">$9.99</span></div>
+                        <div class="order-total-row">
+                            <span>Shipping ($)</span>
+                            <input type="number" name="shipping_cost" id="shippingInput" min="0" step="0.01"
+                                   value="0.00" placeholder="0.00"
+                                   style="width:80px;padding:4px 8px;border:1px solid var(--gray-200);border-radius:6px;text-align:right;font-size:13px"
+                                   oninput="updateTotals()">
+                        </div>
                         <div class="order-total-row"><span>Tax (8.875%)</span><span id="totTax">$0.00</span></div>
                         <div class="order-total-row grand"><span>Total</span><span id="totTotal">$0.00</span></div>
                     </div>
@@ -288,12 +294,11 @@ function renderItems() {
 
 function updateTotals() {
     const sub  = items.reduce((s,i) => s + i.unit_price * i.quantity, 0);
-    const ship = sub >= 150 ? 0 : (sub > 0 ? 9.99 : 0);
+    const ship = parseFloat(document.getElementById('shippingInput')?.value || 0) || 0;
     const tax  = sub > 0 ? sub * 0.08875 : 0;
     const tot  = sub + ship + tax;
     const fmt  = v => '$' + v.toFixed(2);
     document.getElementById('totSubtotal').textContent = fmt(sub);
-    document.getElementById('totShipping').textContent = ship === 0 ? 'FREE' : fmt(ship);
     document.getElementById('totTax').textContent      = fmt(tax);
     document.getElementById('totTotal').textContent    = fmt(tot);
 }

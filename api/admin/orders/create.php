@@ -46,7 +46,7 @@ try {
         $subtotal += $price * $qty;
         $lines[]  = ['product_id'=>$pid,'name'=>$p['name'],'sku'=>$p['sku'],'qty'=>$qty,'price'=>$price];
     }
-    $shipping = $subtotal >= 150 ? 0 : 9.99;
+    $shipping = max(0.0, (float)($body['shipping_cost'] ?? 0));
     $tax      = round($subtotal * 0.08875, 2);
     $total    = $subtotal + $shipping + $tax;
 
