@@ -23,6 +23,8 @@ class PDF
     private string $dc   = '0 0 0 RG';
     private string $tc   = '0 0 0 rg';
     private float  $lw   = 0.5;
+    private float  $yOffset = 0.0;
+    public function setYOffset(float $o): void { $this->yOffset = $o; }
 
     // Helvetica char widths (1/1000 em)
     private static array $CW = [
@@ -130,7 +132,7 @@ class PDF
                          string $align = 'L', float $cw = 0): void
     {
         if ($str === '') return;
-        $py = $this->py($y);
+        $py = $this->py($y + $this->yOffset);
         if ($align === 'R' && $cw > 0)     $x = $x + $cw - $this->tw($str);
         elseif ($align === 'C' && $cw > 0) $x = $x + ($cw - $this->tw($str)) / 2;
         $esc = $this->esc($str);

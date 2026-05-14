@@ -69,6 +69,7 @@ $MR_edge = 562;      // right edge
 $CW = $MR_edge - $ML; // content width = 528 pt
 
 $pdf = new PDF();
+$pdf->setYOffset(6); // shift all text down 6pt — adjust as needed
 
 // ═══════════════════════════════════════════════════════════════════
 //  PAGE 1 — INVOICE
