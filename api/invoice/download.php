@@ -2,11 +2,22 @@
 require_once '../../includes/auth.php';
 require_once '../../includes/functions.php';
 require_once '../../lib/pdf.php';
+require_once '../../lib/qr.php';
+
+/*
+ * Access:
+ *   Admin : ?order_id=N      (any order, by DB id)
+ *   Public: ?order=ORD-XXX   (by order number — same trust as track page)
+ *
+ * Output: Two-page PDF
+ *   Page 1 — Invoice
+ *   Page 2 — Packing Slip (with QR codes)
+ */
 
 $user    = auth_user();
 $isAdmin = $user && $user['role'] === 'admin';
+$order   = null;
 
-$order = null;
 if ($isAdmin && !empty($_GET['order_id'])) {
     $order = get_order((int)$_GET['order_id']);
 } elseif (!empty($_GET['order'])) {
@@ -17,7 +28,7 @@ if ($isAdmin && !empty($_GET['order_id'])) {
 }
 if (!$order) { http_response_code(404); exit('Order not found.'); }
 
-// Customer lookup
+// ── Customer lookup ───────────────────────────────────────────────
 $cu = null;
 if ($order['user_id']) {
     $s = db()->prepare("SELECT first_name, last_name, email, phone FROM users WHERE id=?");
@@ -26,254 +37,469 @@ if ($order['user_id']) {
 }
 $addr = $order['shipping_address'];
 
+// ── Helpers ───────────────────────────────────────────────────────
 $fmt  = fn(float $v): string => '$'.number_format($v, 2);
 $invN = 'INV-'.str_pad($order['id'], 5, '0', STR_PAD_LEFT);
-$date = date('M j, Y', strtotime($order['created_at']));
+$date = date('F j, Y', strtotime($order['created_at']));
 
-// Colours
-const NR=22;  const NG=22;  const NB=63;
-const TR=86;  const TG=207; const TB=225;
+// ── Resolved contact info ─────────────────────────────────────────
+$billName  = $cu ? trim($cu['first_name'].' '.$cu['last_name'])
+                 : ($addr ? trim($addr['first_name'].' '.$addr['last_name']) : 'Guest');
+$billEmail = $cu['email'] ?? ($addr['email'] ?? '');
+$billPhone = $cu['phone'] ?? '';
+$shipName  = $addr ? trim($addr['first_name'].' '.$addr['last_name']) : $billName;
+$shipLine1 = $addr ? $addr['street_address'].($addr['apt_suite'] ? ', '.$addr['apt_suite'] : '') : '';
+$shipLine2 = $addr ? trim(($addr['city'] ?? '').', '.($addr['state_province'] ?? '').' '.($addr['postal_code'] ?? '')) : '';
+$shipLine3 = $addr['country'] ?? 'United States';
 
-// Layout constants — right edge = ML + CW = 553
-// text(x, y, str, 'R', cw) => right edge of text = x + cw
-$ML = 42;
-$MR = 553;
-$CW = $MR - $ML;   // 511
+// ── Colours (RGB) ─────────────────────────────────────────────────
+[$NR,$NG,$NB] = [22,  22,  63];   // navy
+[$TR,$TG,$TB] = [86,  207, 225];  // teal
+[$IR,$IG,$IB] = [24,  24,  27];   // near-black ink
+[$MR,$MG,$MB] = [82,  82,  91];   // mid-grey
+[$UR,$UG,$UB] = [161, 161, 170];  // muted
+[$BR,$BG,$BB] = [228, 228, 231];  // border
+[$AR,$AG,$AB] = [250, 250, 249];  // alt row bg
+
+// ── Layout (points, A4) ───────────────────────────────────────────
+$ML = 34;            // left margin (pt)
+$MR_edge = 562;      // right edge
+$CW = $MR_edge - $ML; // content width = 528 pt
 
 $pdf = new PDF();
 
+// ═══════════════════════════════════════════════════════════════════
+//  PAGE 1 — INVOICE
+// ═══════════════════════════════════════════════════════════════════
+$pdf->addPage();
+
 // ── Top accent bar ────────────────────────────────────────────────
-$pdf->setFill(NR, NG, NB);
+$pdf->setFill($NR,$NG,$NB);
 $pdf->fillRect(0, 0, PDF::W, 5);
 
-// ── Header ────────────────────────────────────────────────────────
-// Left: brand
+// ── Header: brand (left) / INVOICE label (right) ─────────────────
 $pdf->setFont(20, true);
-$pdf->setTextColor(NR, NG, NB);
-$pdf->text($ML, 25, 'ElevionSupply');
+$pdf->setTextColor($NR,$NG,$NB);
+$pdf->text($ML, 24, 'ElevionSupply');
 
 $pdf->setFont(8, false);
-$pdf->setTextColor(100, 110, 125);
+$pdf->setTextColor($MR,$MG,$MB);
 $pdf->text($ML, 40, 'hello@elevionsupply.com');
 $pdf->text($ML, 52, '+1 (800) 555-TECH  |  elevionsupply.com');
+$pdf->text($ML, 64, '123 Tech Plaza, San Francisco, CA 94102');
 
-// Right: INVOICE label + number
-// Right-align to $MR: call text($ML, y, str, 'R', $CW) => right edge = $ML + $CW = $MR
-$pdf->setFont(26, true);
-$pdf->setTextColor(NR, NG, NB);
+$pdf->setFont(28, true);
+$pdf->setTextColor($NR,$NG,$NB);
 $pdf->text($ML, 24, 'INVOICE', 'R', $CW);
 
 $pdf->setFont(9, false);
-$pdf->setTextColor(110, 115, 130);
+$pdf->setTextColor($MR,$MG,$MB);
 $pdf->text($ML, 42, $invN, 'R', $CW);
 $pdf->text($ML, 54, 'Order Date:  '.$date, 'R', $CW);
 
 // Full-width divider
-$y = 68;
-$pdf->setDraw(NR, NG, NB); $pdf->setLineWidth(1);
-$pdf->line($ML, $y, $MR, $y);
-
-// ── Meta row ──────────────────────────────────────────────────────
-// 4 columns at fixed x positions
 $y = 76;
+$pdf->setDraw($NR,$NG,$NB); $pdf->setLineWidth(0.8);
+$pdf->line($ML, $y, $MR_edge, $y);
+
+// ── Meta row: 4 columns ───────────────────────────────────────────
+$y = 84;
 $mCols = [
     [$ML,       'INVOICE NUMBER', $invN],
-    [$ML + 130, 'ORDER NUMBER',   $order['order_number']],
-    [$ML + 285, 'DATE ISSUED',    $date],
-    [$ML + 410, 'STATUS',         strtoupper($order['status'])],
+    [$ML+133,   'ORDER NUMBER',   $order['order_number']],
+    [$ML+290,   'DATE ISSUED',    $date],
+    [$ML+422,   'STATUS',         strtoupper($order['status'])],
 ];
-
-$pdf->setFont(7, false); $pdf->setTextColor(135, 135, 150);
-foreach ($mCols as [$x, $lbl,]) { $pdf->text($x, $y, $lbl); }
-$y += 13;
-$pdf->setFont(9, true); $pdf->setTextColor(NR, NG, NB);
-foreach ($mCols as [$x,, $val]) { $pdf->text($x, $y, $val); }
+$pdf->setFont(7, false); $pdf->setTextColor($UR,$UG,$UB);
+foreach ($mCols as [$x,$lbl,]) { $pdf->text($x, $y, $lbl); }
+$y += 12;
+$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+foreach ($mCols as [$x,,$val]) { $pdf->text($x, $y, $val); }
 
 // Light rule
 $y += 18;
-$pdf->setDraw(215, 218, 228); $pdf->setLineWidth(0.5);
-$pdf->line($ML, $y, $MR, $y);
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML, $y, $MR_edge, $y);
 
-// ── Bill To / Ship To ─────────────────────────────────────────────
-$y += 13;
-$colL = $ML;        // left column
-$colR = $ML + 256;  // right column
+// ── PARTIES: dark header bar ──────────────────────────────────────
+$y += 1;
+$colW3 = $CW / 3;   // each of 3 columns
+$pdf->setFill($IR,$IG,$IB);
+$pdf->fillRect($ML, $y, $CW, 16);
+$pdf->setFont(7, true); $pdf->setTextColor(255,255,255);
+$hY = $y + 5;
+foreach (['BILL TO','SHIP TO','CUSTOMER PHONE'] as $i => $lbl) {
+    $pdf->text($ML + $i * $colW3 + 5, $hY, $lbl);
+}
+// Vertical dividers in header
+$pdf->setDraw(80,80,83); $pdf->setLineWidth(0.3);
+$pdf->line($ML + $colW3,   $y, $ML + $colW3,   $y + 16);
+$pdf->line($ML + 2*$colW3, $y, $ML + 2*$colW3, $y + 16);
+$y += 16;
 
-$pdf->setFont(7, true); $pdf->setTextColor(135, 135, 150);
-$pdf->text($colL, $y, 'BILL TO');
-$pdf->text($colR, $y, 'SHIP TO');
-$y += 12;
+// ── PARTIES: content row ──────────────────────────────────────────
+$pdf->setFill(255,255,255);
+$rowStartY = $y;
 
-$billName  = $cu ? trim($cu['first_name'].' '.$cu['last_name'])
-                 : ($addr ? trim($addr['first_name'].' '.$addr['last_name']) : 'Guest');
-$billEmail = trim($cu['email'] ?? '');
-$billPhone = trim($cu['phone'] ?? '');
-$shipName  = $addr ? trim($addr['first_name'].' '.$addr['last_name']) : $billName;
-$shipLine1 = $addr ? $addr['street_address'].($addr['apt_suite'] ? ', '.$addr['apt_suite'] : '') : '';
-$shipLine2 = $addr ? trim(($addr['city'] ?? '').', '.($addr['state_province'] ?? '').' '.($addr['postal_code'] ?? '')) : '';
-$shipLine3 = $addr['country'] ?? '';
+// Estimate row height
+$lineH = 11;
+$bLines = array_filter([$billEmail, $billPhone]);
+$sLines = array_filter([$shipLine1, $shipLine2, $shipLine3]);
+$c3Lines = array_filter([$billPhone, $order['payment_method']]);
+$rowH = max(50, (count($bLines) + 2) * $lineH, (count($sLines) + 2) * $lineH, 60);
 
-$lineH = 12;
-$yL = $y;  // tracks bill-to column
-$yR = $y;  // tracks ship-to column
+$pdf->fillRect($ML, $y, $CW, $rowH);
 
-$pdf->setFont(10, true); $pdf->setTextColor(NR, NG, NB);
-$pdf->text($colL, $yL, $billName);  $yL += $lineH + 1;
-$pdf->text($colR, $yR, $shipName);  $yR += $lineH + 1;
-
-$pdf->setFont(8.5, false); $pdf->setTextColor(70, 76, 90);
+// Col1: Bill To
+$cy = $y + 8;
+$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($ML + 5, $cy, $billName); $cy += $lineH;
+$pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
 foreach (array_filter([$billEmail, $billPhone]) as $line) {
-    $pdf->text($colL, $yL, $line); $yL += $lineH;
+    $pdf->text($ML + 5, $cy, $line); $cy += $lineH - 1;
 }
+
+// Col2: Ship To
+$cy = $y + 8;
+$cx2 = $ML + $colW3 + 5;
+$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($cx2, $cy, $shipName); $cy += $lineH;
+$pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
 foreach (array_filter([$shipLine1, $shipLine2, $shipLine3]) as $line) {
-    // Truncate long address lines to fit in the column
-    if (strlen($line) > 44) $line = substr($line, 0, 42).'...';
-    $pdf->text($colR, $yR, $line); $yR += $lineH;
+    if (strlen($line) > 40) $line = substr($line, 0, 38).'...';
+    $pdf->text($cx2, $cy, $line); $cy += $lineH - 1;
 }
 
-$y = max($yL, $yR) + 10;
+// Col3: Phone / Payment Method
+$cy = $y + 8;
+$cx3 = $ML + 2*$colW3 + 5;
+$pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($cx3, $cy, $billPhone ?: '—'); $cy += $lineH;
+$pdf->setFont(7, true); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($cx3, $cy, 'PAYMENT METHOD'); $cy += 9;
+$pdf->setFont(8.5, true); $pdf->setTextColor($IR,$IG,$IB);
+$method = ucwords(str_replace('_',' ', $order['payment_method'] ?? 'Credit Card'));
+$pdf->text($cx3, $cy, $method);
 
-$pdf->setDraw(215, 218, 228); $pdf->setLineWidth(0.5);
-$pdf->line($ML, $y, $MR, $y);
-$y += 2;
-
-// ── Items table ───────────────────────────────────────────────────
-//
-//  Column definitions — ALL right-align calls use text(colX, y, str, 'R', colW)
-//  so that right edge = colX + colW (never off-page).
-//
-//  QTY    : left=$ML,       width=32,   right=$ML+32   = 74
-//  DESC   : left=$ML+36,    width=218,  right=$ML+254  = 296
-//  SKU    : left=$ML+258,   width=105,  right=$ML+363  = 405
-//  UNIT   : left=$ML+367,   width=72,   right=$ML+439  = 481
-//  TOTAL  : left=$ML+443,   width=68,   right=$ML+511  = 553 = $MR
-
-$cQtyX  = $ML;        $cQtyW  = 32;
-$cDescX = $ML + 36;   // (left-aligned, no cw needed)
-$cSkuX  = $ML + 258;  // (left-aligned)
-$cUnitX = $ML + 367;  $cUnitW = 72;
-$cTotX  = $ML + 443;  $cTotW  = $CW - 401;   // 511-401 = 110 → right edge = 553
-
-$hdrH = 22; $rowH = 22;
-
-// Header row
-$pdf->setFill(NR, NG, NB);
-$pdf->fillRect($ML, $y, $CW, $hdrH);
-$pdf->setFont(8, true); $pdf->setTextColor(255, 255, 255);
-$hY = $y + 8;
-$pdf->text($cQtyX+3,  $hY, 'QTY');
-$pdf->text($cDescX,   $hY, 'DESCRIPTION');
-$pdf->text($cSkuX,    $hY, 'SKU');
-$pdf->text($cUnitX,   $hY, 'UNIT PRICE', 'R', $cUnitW);
-$pdf->text($cTotX,    $hY, 'TOTAL',      'R', $cTotW);
-$y += $hdrH;
-
-// Item rows
-$pdf->setFont(8.5, false);
-foreach ($order['items'] as $idx => $item) {
-    if ($idx % 2 === 0) {
-        $pdf->setFill(245, 246, 248);
-        $pdf->fillRect($ML, $y, $CW, $rowH);
-    }
-    $pdf->setTextColor(42, 46, 58);
-    $rY = $y + 8;
-
-    $name = $item['product_name'];
-    if (mb_strlen($name) > 36) $name = mb_substr($name, 0, 34).'...';
-    $sku = $item['product_sku'] ?? '';
-    if (mb_strlen($sku) > 14) $sku = mb_substr($sku, 0, 12).'...';
-
-    $pdf->text($cQtyX+3, $rY, (string)$item['quantity']);
-    $pdf->text($cDescX,  $rY, $name);
-    $pdf->text($cSkuX,   $rY, $sku);
-    $pdf->text($cUnitX,  $rY, $fmt((float)$item['unit_price']), 'R', $cUnitW);
-
-    $pdf->setFont(8.5, true);
-    $pdf->text($cTotX, $rY, $fmt((float)$item['unit_price'] * $item['quantity']), 'R', $cTotW);
-    $pdf->setFont(8.5, false);
-
-    $y += $rowH;
-}
+// Vertical dividers in content row
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML + $colW3,   $rowStartY, $ML + $colW3,   $rowStartY + $rowH);
+$pdf->line($ML + 2*$colW3, $rowStartY, $ML + 2*$colW3, $rowStartY + $rowH);
 
 // Bottom border
-$pdf->setDraw(200, 204, 215); $pdf->setLineWidth(0.5);
-$pdf->line($ML, $y, $MR, $y);
+$pdf->line($ML, $rowStartY + $rowH, $MR_edge, $rowStartY + $rowH);
+$y = $rowStartY + $rowH + 1;
 
-// ── Totals ────────────────────────────────────────────────────────
-//
-//  Totals block right-side: label left, value right-aligned to $MR.
-//  text(tX, y, val, 'R', tW)  =>  right edge = tX + tW = $MR
-//
-$y += 10;
-$tX = $ML + 295;       // left edge of totals block
-$tW = $MR - $tX;       // = 553 - 337 = 216
+// ── ITEMS TABLE header bar ────────────────────────────────────────
+// Columns: QTY | DESCRIPTION | UNIT PRICE | EST. TAX | SUBTOTAL
+$cQtyW  = 30;  $cQtyX  = $ML;
+$cDescX = $ML + 34;  $cDescW = $CW - 34 - 68 - 68 - 76;  // ~282
+$cUnitX = $cDescX + $cDescW;  $cUnitW = 68;
+$cTaxX  = $cUnitX + $cUnitW;  $cTaxW  = 68;
+$cSubX  = $cTaxX  + $cTaxW;   $cSubW  = $MR_edge - $cSubX; // ~76
 
-foreach ([
-    ['Subtotal',     $fmt((float)$order['subtotal'])],
-    ['Shipping',     (float)$order['shipping_cost'] === 0.0 ? 'FREE' : $fmt((float)$order['shipping_cost'])],
-    ['Tax (8.875%)', $fmt((float)$order['tax_amount'])],
-] as [$lbl, $val]) {
-    $pdf->setFont(9, false);
-    $pdf->setTextColor(90, 96, 110);  $pdf->text($tX + 4, $y, $lbl);
-    $pdf->setTextColor(40, 45, 58);   $pdf->text($tX, $y, $val, 'R', $tW);
-    $y += 16;
+$hdrH = 18;
+$pdf->setFill($IR,$IG,$IB);
+$pdf->fillRect($ML, $y, $CW, $hdrH);
+$pdf->setFont(7.5, true); $pdf->setTextColor(255,255,255);
+$hY = $y + 6;
+$pdf->text($cQtyX + 4, $hY, 'QTY');
+$pdf->text($cDescX + 2, $hY, 'DESCRIPTION');
+$pdf->text($cUnitX, $hY, 'UNIT PRICE', 'R', $cUnitW - 2);
+$pdf->text($cTaxX,  $hY, 'EST. TAX',   'R', $cTaxW  - 2);
+$pdf->text($cSubX,  $hY, 'SUBTOTAL',   'R', $cSubW  - 2);
+// dividers in header
+$pdf->setDraw(80,80,83); $pdf->setLineWidth(0.3);
+foreach ([$cDescX,$cUnitX,$cTaxX,$cSubX] as $cx) {
+    $pdf->line($cx, $y, $cx, $y + $hdrH);
+}
+$y += $hdrH;
+
+// ── ITEMS ROWS ────────────────────────────────────────────────────
+$rowH2 = 20;
+$taxRate = 0.08875;
+foreach ($order['items'] as $idx => $item) {
+    $bg = ($idx % 2 === 1) ? [$AR,$AG,$AB] : [255,255,255];
+    $pdf->setFill(...$bg);
+    $pdf->fillRect($ML, $y, $CW, $rowH2);
+
+    $rY = $y + 7;
+    $price    = (float)$item['unit_price'];
+    $qty      = (int)$item['quantity'];
+    $lineSub  = $price * $qty;
+    $lineTax  = round($lineSub * $taxRate, 2);
+    $name     = $item['product_name'];
+    if (strlen($name) > 44) $name = substr($name, 0, 42).'...';
+    $sku      = $item['product_sku'] ?? '';
+
+    $pdf->setFont(8, true);  $pdf->setTextColor($IR,$IG,$IB);
+    $pdf->text($cQtyX + 4, $rY, (string)$qty);
+
+    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $pdf->text($cDescX + 2, $rY, $name);
+    if ($sku) {
+        $pdf->setFont(7, false); $pdf->setTextColor($UR,$UG,$UB);
+        $pdf->text($cDescX + 2, $rY + 9, $sku);
+    }
+
+    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $pdf->text($cUnitX, $rY, $fmt($price),   'R', $cUnitW - 2);
+    $pdf->text($cTaxX,  $rY, $fmt($lineTax), 'R', $cTaxW  - 2);
+
+    $pdf->setFont(8.5, true); $pdf->setTextColor($IR,$IG,$IB);
+    $pdf->text($cSubX, $rY, $fmt($lineSub), 'R', $cSubW - 2);
+
+    // Row divider + column lines
+    $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
+    $pdf->line($ML, $y + $rowH2, $MR_edge, $y + $rowH2);
+    foreach ([$cDescX,$cUnitX,$cTaxX,$cSubX] as $cx) {
+        $pdf->line($cx, $y, $cx, $y + $rowH2);
+    }
+    $y += $rowH2;
 }
 
-// Thin rule above grand total
-$pdf->setDraw(200, 204, 215); $pdf->setLineWidth(0.5);
-$pdf->line($tX, $y, $MR, $y);
+// ── TOTALS BLOCK ──────────────────────────────────────────────────
+$y += 8;
+$tX  = $ML + 300;
+$tW  = $MR_edge - $tX;
+$lbW = $tW * 0.55;  // label portion
+$vaW = $tW * 0.45;  // value portion
+
+$subtotal = (float)$order['subtotal'];
+$taxAmt   = (float)$order['tax_amount'];
+$shipAmt  = (float)$order['shipping_cost'];
+$total    = (float)$order['total_amount'];
+
+$totRows = [
+    ['SUBTOTAL',                                   $fmt($subtotal), false],
+    ['SALES TAX '.number_format($taxRate*100,2).'%', $fmt($taxAmt), false],
+    ['SHIPPING & HANDLING',                         $shipAmt === 0.0 ? 'FREE' : $fmt($shipAmt), false],
+    ['TOTAL',                                        $fmt($total),    true],
+];
+
+$tRowH = 16;
+foreach ($totRows as [$lbl,$val,$isDark]) {
+    if ($isDark) {
+        $pdf->setFill($IR,$IG,$IB);
+        $pdf->fillRect($tX, $y, $tW, $tRowH + 2);
+        $pdf->setFont(8.5, true); $pdf->setTextColor(255,255,255);
+        $pdf->text($tX, $y + 7, $lbl, 'R', $lbW - 2);
+        $pdf->setDraw(80,80,83); $pdf->setLineWidth(0.3);
+        $pdf->line($tX + $lbW, $y, $tX + $lbW, $y + $tRowH + 2);
+        $pdf->setFont(9, true); $pdf->setTextColor($TR,$TG,$TB);
+        $pdf->text($tX + $lbW, $y + 7, $val, 'R', $vaW - 2);
+        $y += $tRowH + 2;
+    } else {
+        $pdf->setFill(255,255,255);
+        $pdf->fillRect($tX, $y, $tW, $tRowH);
+        $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
+        $pdf->line($tX, $y + $tRowH, $tX + $tW, $y + $tRowH);
+        $pdf->line($tX + $lbW, $y, $tX + $lbW, $y + $tRowH);
+        $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+        $pdf->text($tX, $y + 6, $lbl, 'R', $lbW - 2);
+        $pdf->setFont(8, false); $pdf->setTextColor($IR,$IG,$IB);
+        $pdf->text($tX + $lbW, $y + 6, $val, 'R', $vaW - 2);
+        $y += $tRowH;
+    }
+}
+// Left + right borders around non-dark rows
+$lightH = 3 * $tRowH;
+$lightY = $y - $lightH - ($tRowH + 2); // start of light rows
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
+$pdf->line($tX,      $lightY, $tX,      $lightY + $lightH);
+$pdf->line($tX + $tW,$lightY, $tX + $tW,$lightY + $lightH);
+
+// ── PAYMENT DETAILS ───────────────────────────────────────────────
+$y += 12;
+$pdf->setFont(7, true);  $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($ML, $y, 'PAYMENT DETAILS');
+$y += 11;
+$pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+$pstat = ucfirst($order['payment_status'] ?? '');
+$txn   = $order['payment']['transaction_id'] ?? '';
+$pdf->text($ML, $y, 'Method: '.$method);
+$pdf->text($ML + 140, $y, 'Status: '.$pstat);
+if ($txn) { $pdf->text($ML + 270, $y, 'Txn: '.$txn); }
+
+// ── NOTES ─────────────────────────────────────────────────────────
+if (!empty($order['notes'])) {
+    $y += 20;
+    $pdf->setFill($AR,$AG,$AB);
+    $pdf->fillRect($ML, $y, $CW, 28);
+    $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
+    $pdf->drawRect($ML, $y, $CW, 28);
+    $pdf->setFont(7, true); $pdf->setTextColor($UR,$UG,$UB);
+    $pdf->text($ML + 4, $y + 8, 'NOTES');
+    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $pdf->text($ML + 4, $y + 19, mb_substr($order['notes'], 0, 90));
+}
+
+// ── PAGE 1 FOOTER ─────────────────────────────────────────────────
+$fY = PDF::H - 36;
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML, $fY, $MR_edge, $fY);
+$pdf->setFont(7.5, false); $pdf->setTextColor($MR,$MG,$MB);
+$pdf->text($ML, $fY + 12, '123 Tech Plaza, San Francisco, CA 94102');
+$pdf->setFont(7.5, false); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($ML, $fY + 12,
+    'hello@elevionsupply.com  |  +1 (800) 555-TECH  |  elevionsupply.com',
+    'R', $CW);
+
+// ═══════════════════════════════════════════════════════════════════
+//  PAGE 2 — PACKING SLIP
+// ═══════════════════════════════════════════════════════════════════
+$pdf->addPage();
+$y = 0;
+
+// ── Title bar ─────────────────────────────────────────────────────
+$pdf->setFill($IR,$IG,$IB);
+$pdf->fillRect(0, $y, PDF::W, 22);
+$pdf->setFont(9, true); $pdf->setTextColor(255,255,255);
+$pdf->text($ML, $y + 7, 'PACKING SLIP', 'C', $CW);
+$y += 22;
+
+// ── Top block: brand left / invoice meta right ────────────────────
+$y += 6;
+$blockY = $y;
+
+$pdf->setFont(16, true); $pdf->setTextColor($NR,$NG,$NB);
+$pdf->text($ML, $y + 8, 'ElevionSupply');
+$pdf->setFont(7.5, false); $pdf->setTextColor($MR,$MG,$MB);
+$pdf->text($ML, $y + 20, 'United States of America');
+$pdf->text($ML, $y + 30, 'elevionsupply.com');
+
+$pdf->setFont(14, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($ML, $y + 8, 'Invoice #'.$invN, 'R', $CW);
+$pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+$pdf->text($ML, $y + 22, 'Order Date:  '.$date, 'R', $CW);
+
+$y = max($blockY + 40, $y + 40);
+
+// Divider
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML, $y, $MR_edge, $y);
+$y += 10;
+
+// ── SHIP TO ───────────────────────────────────────────────────────
+$pdf->setFont(7, true); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($ML, $y, 'SHIP TO');
+$y += 11;
+$pdf->setFont(10, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($ML, $y, $shipName);
+$y += 12;
+$pdf->setFont(8.5, false); $pdf->setTextColor($MR,$MG,$MB);
+foreach (array_filter([$shipLine1, $shipLine2, $shipLine3]) as $line) {
+    $pdf->text($ML, $y, $line); $y += 11;
+}
+if ($billEmail) { $pdf->text($ML, $y, $billEmail); $y += 11; }
+
+$y += 6;
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML, $y, $MR_edge, $y);
 $y += 2;
 
-// Grand total
-$pdf->setFill(NR, NG, NB);
-$pdf->fillRect($tX - 2, $y - 1, $tW + 2, 24);
-$pdf->setFont(10, true);
-$pdf->setTextColor(255, 255, 255); $pdf->text($tX + 4,  $y + 8, 'TOTAL DUE');
-$pdf->setTextColor(TR, TG, TB);    $pdf->text($tX,       $y + 8, $fmt((float)$order['total_amount']), 'R', $tW - 4);
-$y += 32;
+// ── PACKING TABLE header ──────────────────────────────────────────
+$descW2 = $CW - 36;
+$qtyW2  = 36;
 
-// ── Payment details ───────────────────────────────────────────────
-if ($order['payment']) {
-    $pdf->setFont(7, true); $pdf->setTextColor(135, 135, 150);
-    $pdf->text($ML, $y, 'PAYMENT DETAILS');
-    $y += 12;
+$pdf->setFill($IR,$IG,$IB);
+$pdf->fillRect($ML, $y, $CW, 18);
+$pdf->setFont(7.5, true); $pdf->setTextColor(255,255,255);
+$pdf->text($ML + 4,           $y + 6, 'DESCRIPTION');
+$pdf->text($ML + $descW2,     $y + 6, 'Q-TY', 'R', $qtyW2 - 2);
+$pdf->setDraw(80,80,83); $pdf->setLineWidth(0.3);
+$pdf->line($ML + $descW2, $y, $ML + $descW2, $y + 18);
+$y += 18;
 
-    $method = ucwords(str_replace('_', ' ', $order['payment_method'] ?? ''));
-    $pstat  = ucfirst($order['payment_status'] ?? '');
-    $txn    = $order['payment']['transaction_id'] ?? '';
+// ── PACKING TABLE rows ────────────────────────────────────────────
+$rowH3 = 20;
+foreach ($order['items'] as $idx => $item) {
+    $bg3 = ($idx % 2 === 1) ? [$AR,$AG,$AB] : [255,255,255];
+    $pdf->setFill(...$bg3);
+    $pdf->fillRect($ML, $y, $CW, $rowH3);
 
-    $pdf->setFont(8.5, false); $pdf->setTextColor(60, 65, 80);
-    $pdf->text($ML,       $y, 'Method: '.$method);
-    $pdf->text($ML + 140, $y, 'Status: '.$pstat);
-    if ($txn) { $pdf->text($ML + 260, $y, 'Txn: '.$txn); }
-    $y += 16;
+    $name2 = $item['product_name'];
+    if (strlen($name2) > 60) $name2 = substr($name2, 0, 58).'...';
+
+    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $pdf->text($ML + 4, $y + 7, $name2);
+
+    $pdf->setFont(9, true); $pdf->setTextColor($IR,$IG,$IB);
+    $pdf->text($ML + $descW2, $y + 7, (string)$item['quantity'], 'R', $qtyW2 - 2);
+
+    $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
+    $pdf->line($ML, $y + $rowH3, $MR_edge, $y + $rowH3);
+    $pdf->line($ML + $descW2, $y, $ML + $descW2, $y + $rowH3);
+    $y += $rowH3;
 }
 
-// ── Notes ─────────────────────────────────────────────────────────
-if (!empty($order['notes'])) {
-    $pdf->setFont(7, true); $pdf->setTextColor(135, 135, 150);
-    $pdf->text($ML, $y, 'NOTES');
-    $y += 12;
-    $pdf->setFont(8.5, false); $pdf->setTextColor(60, 65, 80);
-    $pdf->text($ML, $y, mb_substr($order['notes'], 0, 110));
+// ── QR CODE SECTION ───────────────────────────────────────────────
+$y += 8;
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML, $y, $MR_edge, $y);
+$y += 1;
+
+$qrAreaH = 100;
+$qrSize  = 68;
+$halfCW  = $CW / 2;
+
+// Alt background
+$pdf->setFill($AR,$AG,$AB);
+$pdf->fillRect($ML, $y, $CW, $qrAreaH);
+// Vertical divider between two QR cells
+$pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
+$pdf->line($ML + $halfCW, $y, $ML + $halfCW, $y + $qrAreaH);
+
+// Left QR — ORDER NUMBER
+$lqrX = $ML + ($halfCW - $qrSize) / 2;
+$lqrY = $y + 14;
+$pdf->setFont(6.5, true); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($ML, $y + 6, 'ORDER NUMBER', 'C', $halfCW);
+try {
+    $qrMatrix = QRCode::matrix($order['order_number'], 1);
+    $pdf->qrCode($qrMatrix, $lqrX, $lqrY, $qrSize);
+} catch (Throwable $e) {
+    // Fallback: styled box
+    $pdf->setFill($IR,$IG,$IB);
+    $pdf->fillRect($lqrX, $lqrY, $qrSize, $qrSize);
+    $pdf->setFont(7, true); $pdf->setTextColor(255,255,255);
+    $pdf->text($ML, $lqrY + $qrSize/2 - 4, $order['order_number'], 'C', $halfCW);
 }
+$pdf->setFont(7.5, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($ML, $lqrY + $qrSize + 6, $order['order_number'], 'C', $halfCW);
 
-// ── Footer (pinned to bottom) ─────────────────────────────────────
-$fY = PDF::H - 44;
-$pdf->setDraw(NR, NG, NB); $pdf->setLineWidth(1);
-$pdf->line(0, $fY, PDF::W, $fY);
+// Right QR — TRACK YOUR ORDER
+$rqrX = $ML + $halfCW + ($halfCW - $qrSize) / 2;
+$rqrY = $lqrY;
+$pdf->setFont(6.5, true); $pdf->setTextColor($UR,$UG,$UB);
+$pdf->text($ML + $halfCW, $y + 6, 'TRACK YOUR ORDER', 'C', $halfCW);
+$trackStr = $order['order_number'];
+try {
+    $qrMatrix2 = QRCode::matrix($trackStr, 1);
+    $pdf->qrCode($qrMatrix2, $rqrX, $rqrY, $qrSize);
+} catch (Throwable $e) {
+    $pdf->setFill($IR,$IG,$IB);
+    $pdf->fillRect($rqrX, $rqrY, $qrSize, $qrSize);
+    $pdf->setFont(7, true); $pdf->setTextColor(255,255,255);
+    $pdf->text($ML + $halfCW, $rqrY + $qrSize/2 - 4, '#'.$trackStr, 'C', $halfCW);
+}
+$pdf->setFont(7.5, true); $pdf->setTextColor($IR,$IG,$IB);
+$pdf->text($ML + $halfCW, $rqrY + $qrSize + 6, '#'.$trackStr, 'C', $halfCW);
 
-$pdf->setFill(NR, NG, NB);
-$pdf->fillRect(0, $fY, PDF::W, 44);
+$footerY2 = $y + $qrAreaH;
 
-$pdf->setFont(8, false); $pdf->setTextColor(155, 170, 192);
-$pdf->text($ML, $fY + 14,
-    '123 Tech Plaza, San Francisco, CA 94102   |   hello@elevionsupply.com   |   +1 (800) 555-TECH');
+// ── PAGE 2 FOOTER dark bar ────────────────────────────────────────
+$pdf->setFill($IR,$IG,$IB);
+$pdf->fillRect(0, $footerY2, PDF::W, 24);
+$pdf->setFont(7.5, true);  $pdf->setTextColor(255,255,255);
+$pdf->text($ML, $footerY2 + 8, 'United States of America');
+$pdf->setFont(7, false); $pdf->setTextColor(120,120,128);
+$pdf->text($ML, $footerY2 + 8,
+    'hello@elevionsupply.com  |  +1 (800) 555-TECH', 'R', $CW);
 
-$pdf->setFont(9, true); $pdf->setTextColor(TR, TG, TB);
-$pdf->text($ML, $fY + 29, 'Thank you for your business!', 'C', $CW);
-
-// ── Stream ────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+//  STREAM OUTPUT
+// ═══════════════════════════════════════════════════════════════════
 $bytes    = $pdf->output();
 $filename = 'Invoice-'.$order['order_number'].'.pdf';
 header('Content-Type: application/pdf');
