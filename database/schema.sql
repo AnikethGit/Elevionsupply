@@ -76,7 +76,9 @@ CREATE TABLE IF NOT EXISTS products (
     badge VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+    INDEX idx_products_active_featured (is_active, is_featured),
+    INDEX idx_products_category_active (category_id, is_active)
 );
 
 -- Addresses
@@ -96,7 +98,8 @@ CREATE TABLE IF NOT EXISTS addresses (
     email VARCHAR(255),
     is_default TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_addresses_email (email)
 );
 
 -- Carts
@@ -141,7 +144,10 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (shipping_address_id) REFERENCES addresses(id) ON DELETE SET NULL,
-    FOREIGN KEY (billing_address_id) REFERENCES addresses(id) ON DELETE SET NULL
+    FOREIGN KEY (billing_address_id) REFERENCES addresses(id) ON DELETE SET NULL,
+    INDEX idx_orders_status (status),
+    INDEX idx_orders_created_at (created_at),
+    INDEX idx_orders_user_status (user_id, status)
 );
 
 -- Order Items
@@ -184,6 +190,22 @@ CREATE TABLE IF NOT EXISTS shipments (
     delivered_at DATETIME, -- set manually via DB or future shipment update UI
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
+
+-- ============================================================
+-- Indexes
+-- ============================================================
+
+-- orders: status filtered on every list/filter page; created_at used in ORDER BY
+ALTER TABLE orders ADD INDEX IF NOT EXISTS idx_orders_status (status);
+ALTER TABLE orders ADD INDEX IF NOT EXISTS idx_orders_created_at (created_at);
+ALTER TABLE orders ADD INDEX IF NOT EXISTS idx_orders_user_status (user_id, status);
+
+-- products: is_active + is_featured filtered on catalog, admin, homepage
+ALTER TABLE products ADD INDEX IF NOT EXISTS idx_products_active_featured (is_active, is_featured);
+ALTER TABLE products ADD INDEX IF NOT EXISTS idx_products_category_active (category_id, is_active);
+
+-- addresses: email used in track.php WHERE for guest order lookup
+ALTER TABLE addresses ADD INDEX IF NOT EXISTS idx_addresses_email (email);
 
 -- ============================================================
 -- Seed Data
