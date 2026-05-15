@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 
 if (!is_post()) json_error('Method not allowed', 405);
 
-$rawInput = file_get_contents(\'php://input\');
+$rawInput = file_get_contents('php://input');
 verify_csrf_api($rawInput);
 
 

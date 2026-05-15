@@ -75,7 +75,7 @@ $related = get_products(['category' => $product['category_slug']], 1, 4);
                     <?php endif; ?>
                 </div>
 
-                <p class="product-description"><?= e($product['description'] ?? '') ?></p>
+                <div class="product-description"><?= nl2br(e($product['description'] ?? '')) ?></div>
 
                 <!-- Stock -->
                 <div class="stock-status <?= $product['stock_quantity'] > 0 ? 'in-stock' : 'out-stock' ?>">

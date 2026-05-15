@@ -153,6 +153,12 @@ require_once '../../includes/header.php';
                     </div>
 
                     <div class="form-group" style="margin-bottom:20px">
+                        <label>Order Date <small style="color:var(--gray-500)">(defaults to now)</small></label>
+                        <input type="datetime-local" name="order_date" id="orderDate"
+                               value="<?= date('Y-m-d\TH:i') ?>">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:20px">
                         <label>Order Status</label>
                         <select name="order_status">
                             <option value="pending">Pending</option>

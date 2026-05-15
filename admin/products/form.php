@@ -13,7 +13,8 @@ if ($id) {
     $stmt->execute([$id]);
     $product = $stmt->fetch();
     if (!$product) redirect('/admin/products.php');
-    $specs = json_decode($product['specifications'] ?? '{}', true) ?: [];
+    $specs             = json_decode($product['specifications'] ?? '{}', true) ?: [];
+    $product['images'] = json_decode($product['images'] ?? '[]', true) ?: [];
 }
 
 $categories = get_categories();
