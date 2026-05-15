@@ -88,7 +88,7 @@ function refreshCartTotals(data) {
     const shipping = subtotal>=150?0:(subtotal>0?9.99:0);
     const tax      = subtotal>0?subtotal*0.08875:0;
     const total    = subtotal+shipping+tax;
-    const fmt = v=>'$'+v.toFixed(2);
+    const fmt = v=>'£'+v.toFixed(2);
     const el = id=>document.getElementById(id);
     if(el('summarySubtotal')) el('summarySubtotal').textContent=fmt(subtotal);
     if(el('summaryShipping')) el('summaryShipping').innerHTML=shipping===0?'<span class="free">FREE</span>':fmt(shipping);

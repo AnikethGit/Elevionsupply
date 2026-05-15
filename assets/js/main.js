@@ -96,7 +96,7 @@ async function updateCartQty(itemId, quantity) {
 function updateCartUI(count, total) {
     const badge = document.querySelector('.cart-badge');
     const totalEl = document.querySelector('.cart-total');
-    if (totalEl) totalEl.textContent = '$' + parseFloat(total).toFixed(2);
+    if (totalEl) totalEl.textContent = '£' + parseFloat(total).toFixed(2);
     if (count > 0) {
         if (badge) { badge.textContent = count; badge.style.display = 'flex'; }
         else {

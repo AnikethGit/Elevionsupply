@@ -3,7 +3,7 @@
 <div class="help-page-container"><div class="help-content">
 <h2>Shipping Methods & Rates</h2>
 <table class="help-table"><thead><tr><th>Method</th><th>Delivery</th><th>Cost</th></tr></thead><tbody>
-<tr><td>Standard Shipping</td><td>2–5 business days</td><td>$9.99 (free over $150)</td></tr>
+<tr><td>Standard Shipping</td><td>2–5 business days</td><td>£9.99 (free over £150)</td></tr>
 <tr><td>Express Shipping</td><td>1–2 business days</td><td>$24.99</td></tr>
 <tr><td>Overnight</td><td>Next business day</td><td>$49.99</td></tr>
 <tr><td>International</td><td>7–21 business days</td><td>Contact us</td></tr>

@@ -10,7 +10,7 @@ $sections = [
         ['How long do orders take?','Most orders ship within 24 hours. Standard delivery is 2–5 business days.'],
     ],
     'Shipping & Delivery' => [
-        ['Do you offer free shipping?','Yes! Free standard shipping on orders over $150. Otherwise standard shipping is $9.99.'],
+        ['Do you offer free shipping?','Yes! Free standard shipping on orders over £150. Otherwise standard shipping is £9.99.'],
         ['Where do you ship?','We ship to all 50 US states, Canada, and select international locations.'],
         ['How do I track my order?','You\'ll receive a tracking number by email. Use our Track Order page to monitor your package.'],
         ['What if my package is lost?','Report within 30 days with your tracking number. We\'ll send a replacement or issue a refund.'],

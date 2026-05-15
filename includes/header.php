@@ -31,7 +31,7 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
 
 <!-- TOP BAR -->
 <div class="topbar">
-    🚚 Free shipping on orders over <span>$150</span> &nbsp;|&nbsp; Wholesale pricing on bulk orders &nbsp;|&nbsp; 30-day returns
+    🚚 Free shipping on orders over <span>£150</span> &nbsp;|&nbsp; Wholesale pricing on bulk orders &nbsp;|&nbsp; 30-day returns
 </div>
 
 <!-- HEADER -->

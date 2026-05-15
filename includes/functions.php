@@ -298,7 +298,7 @@ function get_order(int $id, ?int $userId = null): ?array {
 
 // ─── Formatting ───────────────────────────────────────────────────
 function money(float $amount): string {
-    return '$' . number_format($amount, 2);
+    return '£' . number_format($amount, 2);
 }
 
 function e(string $str): string {

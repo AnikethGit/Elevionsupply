@@ -102,7 +102,7 @@ $related = get_products(['category' => $product['category_slug']], 1, 4);
                 <!-- Trust badges -->
                 <div class="trust-badges">
                     <div class="trust-item"><i class="fas fa-shield-alt"></i> Secure Payment</div>
-                    <div class="trust-item"><i class="fas fa-truck"></i> Free Shipping $150+</div>
+                    <div class="trust-item"><i class="fas fa-truck"></i> Free Shipping £150+</div>
                     <div class="trust-item"><i class="fas fa-undo"></i> 30-Day Returns</div>
                 </div>
             </div>

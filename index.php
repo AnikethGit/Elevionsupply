@@ -31,7 +31,7 @@ $emoji   = ['smartphones'=>'📱','earbuds-audio'=>'🎧','laptops'=>'💻','com
 <section class="features-bar">
     <div class="features-inner">
         <?php foreach ([
-            ['fa-shipping-fast', 'Free Shipping',   'On all orders over $150. Fast 2–5 day delivery.'],
+            ['fa-shipping-fast', 'Free Shipping',   'On all orders over £150. Fast 2–5 day delivery.'],
             ['fa-shield-alt',    'Secure Payments',  '256-bit SSL encryption on all transactions.'],
             ['fa-undo-alt',      '30-Day Returns',   'No questions asked return policy.'],
             ['fa-headset',       '24/7 Support',     'Expert help whenever you need it.'],

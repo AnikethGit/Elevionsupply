@@ -38,7 +38,7 @@ if ($order['user_id']) {
 $addr = $order['shipping_address'];
 
 // ── Helpers ───────────────────────────────────────────────────────
-$fmt  = fn(float $v): string => '$'.number_format($v, 2);
+$fmt  = fn(float $v): string => '£'.number_format($v, 2);
 $invN = 'INV-'.str_pad($order['id'], 5, '0', STR_PAD_LEFT);
 $date = date('F j, Y', strtotime($order['created_at']));
 
