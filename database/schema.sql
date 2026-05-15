@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_email (email)
 );
 
--- Sessions
+-- Sessions (defined but not used — site uses PHP native sessions, not DB sessions)
 CREATE TABLE IF NOT EXISTS user_sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
-    parent_id INT DEFAULT NULL,
+    parent_id INT DEFAULT NULL, -- reserved for nested categories (not queried in code)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -130,10 +130,10 @@ CREATE TABLE IF NOT EXISTS orders (
     subtotal DECIMAL(10,2) NOT NULL,
     tax_amount DECIMAL(10,2) DEFAULT 0,
     shipping_cost DECIMAL(10,2) DEFAULT 0,
-    discount_amount DECIMAL(10,2) DEFAULT 0,
+    discount_amount DECIMAL(10,2) DEFAULT 0, -- reserved for future coupon feature (never set in code)
     total_amount DECIMAL(10,2) NOT NULL,
     shipping_address_id INT,
-    billing_address_id INT,
+    billing_address_id INT, -- reserved (billing = shipping currently; never populated)
     payment_method VARCHAR(50),
     payment_status ENUM('pending','paid','failed','refunded') DEFAULT 'pending',
     notes TEXT,
@@ -175,13 +175,13 @@ CREATE TABLE IF NOT EXISTS payments (
 CREATE TABLE IF NOT EXISTS shipments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
-    carrier VARCHAR(100),
+    carrier VARCHAR(100), -- set manually via DB or future shipment update UI
     tracking_number VARCHAR(255),
     tracking_url VARCHAR(512),
     status ENUM('preparing','in_transit','out_for_delivery','delivered','failed') DEFAULT 'preparing',
-    estimated_delivery DATE,
-    shipped_at DATETIME,
-    delivered_at DATETIME,
+    estimated_delivery DATE, -- set manually via DB or future shipment update UI
+    shipped_at DATETIME,   -- set manually via DB or future shipment update UI
+    delivered_at DATETIME, -- set manually via DB or future shipment update UI
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
