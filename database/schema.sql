@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- For existing installs: ALTER TABLE users ADD COLUMN notification_prefs JSON DEFAULT NULL;
 -- For existing installs: ALTER TABLE addresses MODIFY COLUMN user_id INT DEFAULT NULL;
 -- For existing installs: ALTER TABLE addresses ADD COLUMN email VARCHAR(255) DEFAULT NULL;
+-- For existing installs: ALTER TABLE shipments ADD COLUMN tracking_url VARCHAR(512) DEFAULT NULL;
 
 -- Password Resets
 CREATE TABLE IF NOT EXISTS password_resets (
@@ -176,6 +177,7 @@ CREATE TABLE IF NOT EXISTS shipments (
     order_id INT NOT NULL,
     carrier VARCHAR(100),
     tracking_number VARCHAR(255),
+    tracking_url VARCHAR(512),
     status ENUM('preparing','in_transit','out_for_delivery','delivered','failed') DEFAULT 'preparing',
     estimated_delivery DATE,
     shipped_at DATETIME,

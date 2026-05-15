@@ -162,6 +162,12 @@ require_once '../../includes/header.php';
                         </select>
                     </div>
 
+                    <div class="form-group" style="margin-bottom:20px">
+                        <label>Tracking URL <small style="color:var(--gray-500)">(optional — printed on invoice)</small></label>
+                        <input type="url" name="tracking_url" id="trackingUrl"
+                               placeholder="https://track.carrier.com/ABC123">
+                    </div>
+
                     <div class="order-total-box">
                         <div class="order-total-row"><span>Subtotal</span><span id="totSubtotal">$0.00</span></div>
                         <div class="order-total-row">

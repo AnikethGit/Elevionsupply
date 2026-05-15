@@ -315,8 +315,8 @@ $pstat = ucfirst($order['payment_status'] ?? '');
 $txn   = $order['payment']['transaction_id'] ?? '';
 $cardLast4 = $order['payment']['card_last_four'] ?? '';
 $methodDisplay = $method;
-if ($cardLast4 && in_array($order['payment_method'] ?? '', ['credit_card','debit_card'])) {
-    $methodDisplay .= ' **** '.$cardLast4;
+if (in_array($order['payment_method'] ?? '', ['credit_card','debit_card'])) {
+    $methodDisplay .= $cardLast4 ? ' **** '.$cardLast4 : ' **** ----';
 }
 $pdf->text($ML, $y, 'Method: '.$methodDisplay);
 $pdf->text($ML + 180, $y, 'Status: '.$pstat);
@@ -473,9 +473,11 @@ $pdf->text($ML, $lqrY + $qrSize + 6, $order['order_number'], 'C', $halfCW);
 // Right QR — TRACK YOUR ORDER
 $rqrX = $ML + $halfCW + ($halfCW - $qrSize) / 2;
 $rqrY = $lqrY;
+$trackUrl  = $order['shipment']['tracking_url'] ?? '';
+$trackStr  = $trackUrl ?: $order['order_number'];
+$trackLabel = $trackUrl ?: ('#'.$order['order_number']);
 $pdf->setFont(6.5, true); $pdf->setTextColor($UR,$UG,$UB);
 $pdf->text($ML + $halfCW, $y + 6, 'TRACK YOUR ORDER', 'C', $halfCW);
-$trackStr = $order['order_number'];
 try {
     $qrMatrix2 = QRCode::matrix($trackStr, 1);
     $pdf->qrCode($qrMatrix2, $rqrX, $rqrY, $qrSize);
@@ -483,10 +485,12 @@ try {
     $pdf->setFill($IR,$IG,$IB);
     $pdf->fillRect($rqrX, $rqrY, $qrSize, $qrSize);
     $pdf->setFont(7, true); $pdf->setTextColor(255,255,255);
-    $pdf->text($ML + $halfCW, $rqrY + $qrSize/2 - 4, '#'.$trackStr, 'C', $halfCW);
+    $pdf->text($ML + $halfCW, $rqrY + $qrSize/2 - 4, $trackLabel, 'C', $halfCW);
 }
-$pdf->setFont(7.5, true); $pdf->setTextColor($IR,$IG,$IB);
-$pdf->text($ML + $halfCW, $rqrY + $qrSize + 6, '#'.$trackStr, 'C', $halfCW);
+// Print URL (or order number) below QR — truncate long URLs
+$pdf->setFont($trackUrl ? 6 : 7.5, true); $pdf->setTextColor($IR,$IG,$IB);
+$displayLabel = strlen($trackLabel) > 52 ? substr($trackLabel, 0, 50).'...' : $trackLabel;
+$pdf->text($ML + $halfCW, $rqrY + $qrSize + 6, $displayLabel, 'C', $halfCW);
 
 $footerY2 = $y + $qrAreaH;
 

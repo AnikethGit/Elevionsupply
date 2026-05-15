@@ -82,6 +82,13 @@ try {
         VALUES (?,?,?,?,?,?)")
        ->execute([$orderId,$total,$paymentMethod,$paymentStatus,$txnId,$cardLast4]);
 
+    // ── Shipment record (tracking URL) ───────────────────────────
+    $trackingUrl = trim($body['tracking_url'] ?? '');
+    if ($trackingUrl) {
+        $db->prepare("INSERT INTO shipments (order_id, tracking_url, status) VALUES (?,?,'preparing')")
+           ->execute([$orderId, $trackingUrl]);
+    }
+
     $db->commit();
     json_success(['order_id' => $orderId, 'order_number' => $orderNum], 'Order created');
 
