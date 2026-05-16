@@ -49,8 +49,8 @@
         <div class="footer-col">
             <h4>Contact Us</h4>
             <div class="footer-contact">
-                <p><i class="fas fa-map-marker-alt"></i> 123 Tech Plaza, San Francisco, CA 94102</p>
-                <p><i class="fas fa-phone"></i> +1 (800) 555-TECH</p>
+                <p><i class="fas fa-map-marker-alt"></i> 80 Washington Square E, New York, NY 10003, USA</p>
+                <p><i class="fas fa-phone"></i> +1 518 644 1943</p>
                 <p><i class="fas fa-envelope"></i> hello@elevionsupply.com</p>
                 <p><i class="fas fa-clock"></i> Mon–Fri: 9am – 6pm PST</p>
             </div>

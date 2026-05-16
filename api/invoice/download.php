@@ -90,8 +90,8 @@ $pdf->text($ML, 24, 'ElevionSupply');
 $pdf->setFont(8, false);
 $pdf->setTextColor($MR,$MG,$MB);
 $pdf->text($ML, 40, 'hello@elevionsupply.com');
-$pdf->text($ML, 52, '+1 (800) 555-TECH  |  elevionsupply.com');
-$pdf->text($ML, 64, '123 Tech Plaza, San Francisco, CA 94102');
+$pdf->text($ML, 52, '+1 518 644 1943  |  elevionsupply.com');
+$pdf->text($ML, 64, '80 Washington Square E, New York, NY 10003, USA');
 
 $pdf->setFont(28, true);
 $pdf->setTextColor($NR,$NG,$NB);
@@ -352,10 +352,10 @@ $fY = PDF::H - 36;
 $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
 $pdf->line($ML, $fY, $MR_edge, $fY);
 $pdf->setFont(7.5, false); $pdf->setTextColor($MR,$MG,$MB);
-$pdf->text($ML, $fY + 12, '123 Tech Plaza, San Francisco, CA 94102');
+$pdf->text($ML, $fY + 12, '80 Washington Square E, New York, NY 10003, USA');
 $pdf->setFont(7.5, false); $pdf->setTextColor($UR,$UG,$UB);
 $pdf->text($ML, $fY + 12,
-    'hello@elevionsupply.com  |  +1 (800) 555-TECH  |  elevionsupply.com',
+    'hello@elevionsupply.com  |  +1 518 644 1943  |  elevionsupply.com',
     'R', $CW);
 
 // ═══════════════════════════════════════════════════════════════════
@@ -513,7 +513,7 @@ $pdf->setFont(7.5, true);  $pdf->setTextColor(255,255,255);
 $pdf->text($ML, $footerY2 + 8, 'United States of America');
 $pdf->setFont(7, false); $pdf->setTextColor(120,120,128);
 $pdf->text($ML, $footerY2 + 8,
-    'hello@elevionsupply.com  |  +1 (800) 555-TECH', 'R', $CW);
+    'hello@elevionsupply.com  |  +1 518 644 1943', 'R', $CW);
 
 // ═══════════════════════════════════════════════════════════════════
 //  STREAM OUTPUT

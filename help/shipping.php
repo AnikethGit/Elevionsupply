@@ -12,6 +12,6 @@
 <h2>Tracking</h2><p>You'll receive a tracking number by email once your order ships. Track it on our <a href="/track.php">Track Order</a> page or the carrier's website.</p>
 <h2>International Orders</h2><p>We ship to select international destinations. Customs duties and taxes are the recipient's responsibility and vary by country.</p>
 <h2>Lost or Damaged Packages</h2><p>Report within 30 days with your tracking number and photos of damage. We'll investigate and send a replacement or issue a refund.</p>
-<h2>Contact</h2><p>Email: shipping@elevionsupply.com &nbsp;|&nbsp; Phone: +1 (800) 555-TECH &nbsp;|&nbsp; Mon–Fri 9am–6pm PST</p>
+<h2>Contact</h2><p>Email: shipping@elevionsupply.com &nbsp;|&nbsp; Phone: +1 518 644 1943 &nbsp;|&nbsp; Mon–Fri 9am–6pm PST</p>
 </div><div class="back-to-help"><a href="/help/faq.php">← Back to Help Center</a></div></div>
 <?php require_once '../includes/footer.php'; ?>

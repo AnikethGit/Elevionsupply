@@ -6,6 +6,6 @@
 <h2>Refund Timeline</h2><ul><li>Inspection: 3–5 business days after receipt</li><li>Refund processing: 5–7 business days</li><li>Bank deposit: 3–5 additional business days</li></ul>
 <h2>Defective Items</h2><p>Report defective items within 14 days. We'll send a replacement or issue an immediate refund with prepaid return shipping.</p>
 <h2>Non-Returnable Items</h2><p>Final sale items, custom orders, and items without original packaging are not eligible for returns.</p>
-<h2>Contact Returns</h2><p>Email: returns@elevionsupply.com &nbsp;|&nbsp; Phone: +1 (800) 555-TECH</p>
+<h2>Contact Returns</h2><p>Email: returns@elevionsupply.com &nbsp;|&nbsp; Phone: +1 518 644 1943</p>
 </div><div class="back-to-help"><a href="/help/faq.php">← Back to Help Center</a></div></div>
 <?php require_once '../includes/footer.php'; ?>

@@ -139,7 +139,7 @@ $stepMap = ['pending'=>0,'processing'=>1,'shipped'=>2,'delivered'=>3];
         <h3>Need Help?</h3>
         <div class="help-cards">
             <div class="help-card"><i class="fas fa-envelope"></i><h4>Email Support</h4><p>hello@elevionsupply.com</p></div>
-            <div class="help-card"><i class="fas fa-phone"></i><h4>Phone Support</h4><p>+1 (800) 555-TECH</p></div>
+            <div class="help-card"><i class="fas fa-phone"></i><h4>Phone Support</h4><p>+1 518 644 1943</p></div>
             <div class="help-card"><i class="fas fa-comments"></i><h4>Live Chat</h4><p>Mon–Fri, 9am–6pm PST</p></div>
         </div>
     </div>

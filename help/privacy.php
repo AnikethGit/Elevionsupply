@@ -7,6 +7,6 @@
 <h2>4. Data Security</h2><p>We use SSL encryption, secure payment processing, and restricted data access. No transmission method is 100% secure, but we take all reasonable precautions.</p>
 <h2>5. Your Rights</h2><p>You may access, correct, or delete your personal data at any time by contacting <a href="mailto:privacy@elevionsupply.com">privacy@elevionsupply.com</a>.</p>
 <h2>6. Third-Party Sharing</h2><p>We do not sell your data. We share only with payment processors, shipping carriers, and legal authorities when required by law.</p>
-<h2>7. Contact</h2><p>Email: privacy@elevionsupply.com &nbsp;|&nbsp; Phone: +1 (800) 555-TECH</p>
+<h2>7. Contact</h2><p>Email: privacy@elevionsupply.com &nbsp;|&nbsp; Phone: +1 518 644 1943</p>
 </div><div class="back-to-help"><a href="/help/faq.php">← Back to Help Center</a></div></div>
 <?php require_once '../includes/footer.php'; ?>
