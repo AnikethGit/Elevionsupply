@@ -89,7 +89,7 @@ try {
     // ── Shipment record (tracking URL) ───────────────────────────
     $trackingUrl = trim($body['tracking_url'] ?? '');
     if ($trackingUrl) {
-        $db->prepare("INSERT INTO shipments (order_id, tracking_url, status) VALUES (?,?,'preparing')")
+        $db->prepare("INSERT INTO shipments (order_id, tracking_url) VALUES (?,?)")
            ->execute([$orderId, $trackingUrl]);
     }
 

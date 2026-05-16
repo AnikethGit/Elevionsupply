@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS shipments (
     carrier VARCHAR(100), -- set manually via DB or future shipment update UI
     tracking_number VARCHAR(255),
     tracking_url VARCHAR(512),
-    status ENUM('preparing','in_transit','out_for_delivery','delivered','failed') DEFAULT 'preparing',
+    status ENUM('preparing','in_transit','out_for_delivery','delivered','failed') DEFAULT 'preparing', -- unused; order.status drives the progress bar
     estimated_delivery DATE, -- set manually via DB or future shipment update UI
     shipped_at DATETIME,   -- set manually via DB or future shipment update UI
     delivered_at DATETIME, -- set manually via DB or future shipment update UI

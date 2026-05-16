@@ -90,7 +90,6 @@ $stepMap = ['pending'=>0,'processing'=>1,'shipped'=>2,'delivered'=>3];
                 <?php if ($order['shipment']['tracking_number']): ?>
                 <div><span>Tracking No.</span><strong style="font-family:monospace;color:var(--accent-dark)"><?= e($order['shipment']['tracking_number']) ?></strong></div>
                 <?php endif; ?>
-                <div><span>Status</span><strong><?= e(str_replace('_',' ',$order['shipment']['status'])) ?></strong></div>
                 <?php if ($order['shipment']['estimated_delivery']): ?>
                 <div><span>Est. Delivery</span><strong><?= date('M j, Y', strtotime($order['shipment']['estimated_delivery'])) ?></strong></div>
                 <?php endif; ?>

@@ -44,7 +44,7 @@ $current = $stepMap[$order['status']] ?? 0;
                 <div class="ship-grid">
                     <div><span>Carrier</span><strong><?= e($order['shipment']['carrier']) ?></strong></div>
                     <div><span>Tracking</span><strong class="mono"><?= e($order['shipment']['tracking_number']) ?></strong></div>
-                    <div><span>Status</span><strong><?= e(str_replace('_',' ',$order['shipment']['status'])) ?></strong></div>
+                    <div><span>Tracking</span><strong class="mono"><?= e($order['shipment']['tracking_number']) ?></strong></div>
                     <?php if ($order['shipment']['estimated_delivery']): ?><div><span>Est. Delivery</span><strong><?= date('M j, Y', strtotime($order['shipment']['estimated_delivery'])) ?></strong></div><?php endif; ?>
                 </div>
                 <a href="/track.php?order=<?= e($order['order_number']) ?>" class="btn btn-primary btn-sm" style="margin-top:14px"><i class="fas fa-map-marker-alt"></i> Live Tracking</a>
