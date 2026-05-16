@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- For existing installs: ALTER TABLE addresses MODIFY COLUMN user_id INT DEFAULT NULL;
 -- For existing installs: ALTER TABLE addresses ADD COLUMN email VARCHAR(255) DEFAULT NULL;
 -- For existing installs: ALTER TABLE shipments ADD COLUMN tracking_url VARCHAR(512) DEFAULT NULL;
+-- For existing installs: ALTER TABLE orders ADD COLUMN invoice_number VARCHAR(50) DEFAULT NULL;
 
 -- Password Resets
 CREATE TABLE IF NOT EXISTS password_resets (
@@ -140,6 +141,7 @@ CREATE TABLE IF NOT EXISTS orders (
     payment_method VARCHAR(50),
     payment_status ENUM('pending','paid','failed','refunded') DEFAULT 'pending',
     notes TEXT,
+    invoice_number VARCHAR(50) DEFAULT NULL COMMENT 'Custom invoice ref; falls back to INV-{id} if null',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,

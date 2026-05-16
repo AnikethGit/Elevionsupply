@@ -153,6 +153,11 @@ require_once '../../includes/header.php';
                     </div>
 
                     <div class="form-group" style="margin-bottom:20px">
+                        <label>Invoice Number <small style="color:var(--gray-500)">(optional — auto-generated if blank)</small></label>
+                        <input type="text" name="invoice_number" placeholder="e.g. INV-2024-001" style="font-family:monospace">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:20px">
                         <label>Order Date <small style="color:var(--gray-500)">(defaults to now)</small></label>
                         <input type="datetime-local" name="order_date" id="orderDate"
                                value="<?= date('Y-m-d\TH:i') ?>">

@@ -74,6 +74,8 @@ $current = $stepMap[$order['status']] ?? 0;
             <div class="card">
                 <div class="card-header"><i class="fas fa-receipt"></i> Order Summary</div>
                 <div class="od-summary">
+                    <?php $invNum = !empty($order['invoice_number']) ? $order['invoice_number'] : 'INV-'.str_pad($order['id'],5,'0',STR_PAD_LEFT); ?>
+                    <div class="od-row"><span>Invoice #</span><span class="mono" style="color:var(--accent-dark)"><?= e($invNum) ?></span></div>
                     <div class="od-row"><span>Subtotal</span><span><?= money($order['subtotal']) ?></span></div>
                     <div class="od-row"><span>Tax</span><span><?= money($order['tax_amount']) ?></span></div>
                     <div class="od-row"><span>Shipping</span><span><?= (float)$order['shipping_cost']===0.0?'<span style="color:#276749;font-weight:700">FREE</span>':money($order['shipping_cost']) ?></span></div>

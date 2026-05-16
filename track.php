@@ -12,18 +12,15 @@ if ($orderNum) {
     if (!$email) {
         $error = 'Please enter the email address associated with your order.';
     } else {
-        // Look up the order, then verify the email matches:
-        //   - registered order: check users.email
-        //   - guest order:      check the shipping address stored on the order
         $stmt = db()->prepare("
             SELECT o.*
             FROM orders o
-            LEFT JOIN users u ON u.id = o.user_id
+            LEFT JOIN users u    ON u.id  = o.user_id
             LEFT JOIN addresses a ON a.id = o.shipping_address_id
             WHERE o.order_number = ?
               AND (
-                  LOWER(u.email) = ?
-               OR (o.user_id IS NULL AND LOWER(a.email) = ?)
+                  LOWER(COALESCE(u.email, ''))  = ?
+               OR LOWER(COALESCE(a.email, '')) = ?
               )
             LIMIT 1
         ");
@@ -33,8 +30,6 @@ if ($orderNum) {
         if ($row) {
             $order = get_order($row['id']);
         } else {
-            // Distinguish "order exists but wrong email" from "order not found"
-            // to avoid leaking order existence — show a generic message for both
             $error = 'No order found matching that order number and email address.';
         }
     }

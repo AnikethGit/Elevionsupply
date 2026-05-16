@@ -39,7 +39,9 @@ $addr = $order['shipping_address'];
 
 // ── Helpers ───────────────────────────────────────────────────────
 $fmt  = fn(float $v): string => '£'.number_format($v, 2);
-$invN = 'INV-'.str_pad($order['id'], 5, '0', STR_PAD_LEFT);
+$invN = !empty($order['invoice_number'])
+    ? $order['invoice_number']
+    : 'INV-'.str_pad($order['id'], 5, '0', STR_PAD_LEFT);
 $date = date('F j, Y', strtotime($order['created_at']));
 
 // ── Resolved contact info ─────────────────────────────────────────

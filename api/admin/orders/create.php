@@ -57,16 +57,17 @@ try {
     $paymentStatus  = $body['payment_status']  ?? 'paid';
     $orderStatus    = $body['order_status']    ?? 'pending';
     $notes          = trim($body['notes']      ?? '');
+    $invoiceNumber  = trim($body['invoice_number'] ?? '');
     $orderDate      = !empty($body['order_date'])
                         ? date('Y-m-d H:i:s', strtotime($body['order_date']))
                         : date('Y-m-d H:i:s');
 
     $db->prepare("INSERT INTO orders
         (user_id,order_number,status,subtotal,tax_amount,shipping_cost,total_amount,
-         shipping_address_id,payment_method,payment_status,notes,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
+         shipping_address_id,payment_method,payment_status,notes,invoice_number,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
        ->execute([$userId,$orderNum,$orderStatus,$subtotal,$tax,$shipping,$total,
-                  $addrId,$paymentMethod,$paymentStatus,$notes,$orderDate]);
+                  $addrId,$paymentMethod,$paymentStatus,$notes,$invoiceNumber ?: null,$orderDate]);
     $orderId = (int)$db->lastInsertId();
 
     // ── Order items ───────────────────────────────────────────────
