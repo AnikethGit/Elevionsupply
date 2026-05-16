@@ -25,7 +25,6 @@ if (empty($items)) json_error('Cart is empty');
 
 // Validate card (mock)
 $cardNumber = preg_replace('/\s+/', '', $body['card_number'] ?? '');
-if ($cardNumber === '4000000000000002') json_error('Card declined. Please use a different card.');
 if (strlen($cardNumber) < 13) json_error('Invalid card number');
 
 // Calculate totals

@@ -103,10 +103,6 @@ $user     = auth_user();
                 <div id="step2" class="checkout-step-content" style="display:none">
                     <div class="card">
                         <div class="card-header"><i class="fas fa-credit-card"></i> Payment Details</div>
-                        <div class="test-cards-note">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Test cards:</strong> Use <code>4111 1111 1111 1111</code> (success) or <code>4000 0000 0000 0002</code> (decline)
-                        </div>
                         <div class="form-group">
                             <label>Card Number *</label>
                             <input type="text" id="card_number" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
