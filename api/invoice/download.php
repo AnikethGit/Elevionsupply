@@ -323,6 +323,16 @@ if (in_array($order['payment_method'] ?? '', ['credit_card','debit_card'])) {
 $pdf->text($ML, $y, 'Method: '.$methodDisplay);
 $pdf->text($ML + 180, $y, 'Status: '.$pstat);
 if ($txn) { $pdf->text($ML + 310, $y, 'Txn: '.$txn); }
+$trackingUrl = $order['shipment']['tracking_url'] ?? '';
+if ($trackingUrl) {
+    $y += 13;
+    $pdf->setFont(7, true); $pdf->setTextColor($UR,$UG,$UB);
+    $pdf->text($ML, $y, 'TRACKING URL');
+    $y += 11;
+    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $display = strlen($trackingUrl) > 90 ? substr($trackingUrl, 0, 88).'...' : $trackingUrl;
+    $pdf->text($ML, $y, $display);
+}
 
 // ── NOTES ─────────────────────────────────────────────────────────
 if (!empty($order['notes'])) {
