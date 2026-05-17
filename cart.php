@@ -31,7 +31,9 @@ $total    = $subtotal + $shipping + $tax;
             <div class="cart-items" id="cartItems">
                 <?php foreach ($items as $item): ?>
                 <div class="cart-item" data-item-id="<?= $item['id'] ?>">
-                    <div class="item-img">📦</div>
+                    <div class="item-img" style="overflow:hidden;border-radius:var(--radius-md);background:var(--gray-100);display:flex;align-items:center;justify-content:center">
+                        <?php $pData = get_product((int)$item['product_id']); echo $pData ? product_thumb($pData, 0, 'width:100%;height:100%;object-fit:cover;display:block') : '📦'; ?>
+                    </div>
                     <div class="item-details">
                         <a href="/product.php?id=<?= $item['product_id'] ?>" class="item-name"><?= e($item['name']) ?></a>
                         <div class="item-sku">SKU: <?= e($item['sku']) ?></div>
