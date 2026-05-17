@@ -109,15 +109,27 @@ $emoji   = ['smartphones'=>'📱','earbuds-audio'=>'🎧','laptops'=>'💻','com
         </div>
         <div class="bento-grid reveal">
             <?php
-            // Show up to 5 categories in bento layout
             $bentoSlots = array_slice($categories, 0, 5);
-            foreach ($bentoSlots as $cat):
-                $bg = $bentoBg[$cat['slug']] ?? 'bento-phones';
-                $em = $emoji[$cat['slug']]   ?? '📦';
+            $slotImages = [
+                0 => '/uploads/homepage/slot-1.jpg',
+                1 => '/uploads/homepage/slot-2.jpg',
+                2 => '/uploads/homepage/slot-3.jpg',
+                3 => '/uploads/homepage/slot-4.jpg',
+                4 => '/uploads/homepage/slot-5.jpg',
+            ];
+            foreach ($bentoSlots as $idx => $cat):
+                $bg     = $bentoBg[$cat['slug']] ?? 'bento-phones';
+                $em     = $emoji[$cat['slug']]   ?? '📦';
+                $imgSrc = $slotImages[$idx];
+                $hasImg = file_exists($_SERVER['DOCUMENT_ROOT'].$imgSrc) && filesize($_SERVER['DOCUMENT_ROOT'].$imgSrc) > 0;
             ?>
             <div class="bento-item">
+                <?php if ($hasImg): ?>
+                <div class="bento-bg" style="background-image:url('<?= $imgSrc ?>');background-size:cover;background-position:center"></div>
+                <?php else: ?>
                 <div class="bento-bg <?= $bg ?>"></div>
                 <div class="bento-emoji"><?= $em ?></div>
+                <?php endif; ?>
                 <div class="bento-overlay"></div>
                 <div class="bento-content">
                     <div class="bento-label"><?= e($cat['name']) ?></div>
