@@ -26,8 +26,11 @@ php_flag log_errors On
     # Block access to includes directory
     RewriteRule ^includes/ - [F,L]
 
-    # Pretty URLs (optional)
-    # RewriteRule ^product/([0-9]+)$ /product.php?id=$1 [L,QSA]
+    # Pretty URL for order tracking page only
+    RewriteCond %{THE_REQUEST} \s/track\.php[\s?] [NC]
+    RewriteRule ^ /track [R=301,L]
+
+    RewriteRule ^track$ track.php [L,QSA]
 </IfModule>
 
 # Gzip compression
