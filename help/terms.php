@@ -8,6 +8,6 @@
 <h2>5. Prohibited Conduct</h2><p>You agree not to violate any laws, infringe intellectual property rights, or attempt to gain unauthorized access to our systems.</p>
 <h2>6. Limitation of Liability</h2><p>ElevionSupply shall not be liable for any indirect, incidental, or consequential damages arising from your use of this website or our products.</p>
 <h2>7. Governing Law</h2><p>These terms are governed by the laws of California, United States.</p>
-<h2>8. Contact</h2><p>Email: legal@elevionsupply.com &nbsp;|&nbsp; Mail: ElevionSupply, 80 Washington Square E, New York, NY 10003, USA</p>
+<h2>8. Contact</h2><p>Email: legal@elevionsupply.com &nbsp;|&nbsp; Mail: ElevionSupply, 12 Highfield Road, Banchory, Aberdeenshire, AB31 5UN, United Kingdom</p>
 </div><div class="back-to-help"><a href="/help/faq.php">← Back to Help Center</a></div></div>
 <?php require_once '../includes/footer.php'; ?>

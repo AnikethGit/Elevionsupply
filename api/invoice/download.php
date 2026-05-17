@@ -91,7 +91,7 @@ $pdf->setFont(8, false);
 $pdf->setTextColor($MR,$MG,$MB);
 $pdf->text($ML, 40, 'hello@elevionsupply.com');
 $pdf->text($ML, 52, '+1 518 644 1943  |  elevionsupply.com');
-$pdf->text($ML, 64, '80 Washington Square E, New York, NY 10003, USA');
+$pdf->text($ML, 64, '12 Highfield Road, Banchory, Aberdeenshire, AB31 5UN, United Kingdom');
 
 $pdf->setFont(28, true);
 $pdf->setTextColor($NR,$NG,$NB);
@@ -352,7 +352,7 @@ $fY = PDF::H - 36;
 $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.4);
 $pdf->line($ML, $fY, $MR_edge, $fY);
 $pdf->setFont(7.5, false); $pdf->setTextColor($MR,$MG,$MB);
-$pdf->text($ML, $fY + 12, '80 Washington Square E, New York, NY 10003, USA');
+$pdf->text($ML, $fY + 12, '12 Highfield Road, Banchory, Aberdeenshire, AB31 5UN, United Kingdom');
 $pdf->setFont(7.5, false); $pdf->setTextColor($UR,$UG,$UB);
 $pdf->text($ML, $fY + 12,
     'hello@elevionsupply.com  |  +1 518 644 1943  |  elevionsupply.com',
