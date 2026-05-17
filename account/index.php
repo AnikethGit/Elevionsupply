@@ -55,7 +55,7 @@ require_once '../includes/header.php';
             <div class="card-header"><i class="fas fa-link"></i> Quick Links</div>
             <div class="quick-links">
                 <a href="/account/addresses.php" class="quick-link"><i class="fas fa-map-marker-alt"></i><span>Manage Addresses</span><i class="fas fa-chevron-right"></i></a>
-                <a href="/track.php" class="quick-link"><i class="fas fa-shipping-fast"></i><span>Track an Order</span><i class="fas fa-chevron-right"></i></a>
+                <a href="/track" class="quick-link"><i class="fas fa-shipping-fast"></i><span>Track an Order</span><i class="fas fa-chevron-right"></i></a>
                 <a href="/help/faq.php" class="quick-link"><i class="fas fa-question-circle"></i><span>Help &amp; FAQ</span><i class="fas fa-chevron-right"></i></a>
                 <a href="/catalog.php" class="quick-link"><i class="fas fa-shopping-bag"></i><span>Continue Shopping</span><i class="fas fa-chevron-right"></i></a>
             </div>

@@ -47,7 +47,7 @@ $current = $stepMap[$order['status']] ?? 0;
                     <div><span>Tracking</span><strong class="mono"><?= e($order['shipment']['tracking_number']) ?></strong></div>
                     <?php if ($order['shipment']['estimated_delivery']): ?><div><span>Est. Delivery</span><strong><?= date('M j, Y', strtotime($order['shipment']['estimated_delivery'])) ?></strong></div><?php endif; ?>
                 </div>
-                <a href="/track.php?order=<?= e($order['order_number']) ?>" class="btn btn-primary btn-sm" style="margin-top:14px"><i class="fas fa-map-marker-alt"></i> Live Tracking</a>
+                <a href="/track?order=<?= e($order['order_number']) ?>" class="btn btn-primary btn-sm" style="margin-top:14px"><i class="fas fa-map-marker-alt"></i> Live Tracking</a>
             </div>
             <?php endif; ?>
 
@@ -106,7 +106,7 @@ $current = $stepMap[$order['status']] ?? 0;
             </div>
             <?php endif; ?>
             <div style="display:flex;flex-direction:column;gap:10px">
-                <a href="/track.php?order=<?= e($order['order_number']) ?>" class="btn btn-primary"><i class="fas fa-shipping-fast"></i> Track Order</a>
+                <a href="/track?order=<?= e($order['order_number']) ?>" class="btn btn-primary"><i class="fas fa-shipping-fast"></i> Track Order</a>
                 <?php if (in_array($order['status'],['pending','processing'])): ?>
                 <form method="POST" action="/api/orders/cancel.php" onsubmit="return confirm('Cancel this order?')">
                     <?= csrf_field() ?>

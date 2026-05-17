@@ -41,7 +41,7 @@ $stepMap = ['pending'=>0,'processing'=>1,'shipped'=>2,'delivered'=>3];
 
 <div class="track-hero page-hero"><h1>Track Your Order</h1><p>Enter your order number and email to see the latest status</p></div>
 <div class="track-container">
-    <form class="track-search" method="GET" action="/track.php" style="flex-wrap:wrap;gap:10px">
+    <form class="track-search" method="GET" action="/track" style="flex-wrap:wrap;gap:10px">
         <div class="track-input" style="flex:1;min-width:200px">
             <i class="fas fa-hashtag"></i>
             <input type="text" name="order" placeholder="Order number e.g. ORD-17456…" value="<?= e($orderNum) ?>" required>

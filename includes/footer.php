@@ -42,7 +42,7 @@
                 <li><a href="/account/orders.php">Order History</a></li>
                 <li><a href="/account/addresses.php">Addresses</a></li>
                 <li><a href="/cart.php">Cart</a></li>
-                <li><a href="/track.php">Track Order</a></li>
+                <li><a href="/track">Track Order</a></li>
             </ul>
         </div>
 

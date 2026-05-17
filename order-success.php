@@ -15,7 +15,7 @@ $total    = money((float)get('total', 0));
             <div style="margin-top:12px;font-size:15px;color:var(--gray-600)">Total: <strong style="color:var(--primary)"><?= $total ?></strong></div>
         </div>
         <div style="display:flex;gap:12px;justify-content:center">
-            <a href="/track.php?order=<?= $orderNum ?>" class="btn btn-primary"><i class="fas fa-shipping-fast"></i> Track Order</a>
+            <a href="/track?order=<?= $orderNum ?>" class="btn btn-primary"><i class="fas fa-shipping-fast"></i> Track Order</a>
             <a href="/catalog.php" class="btn btn-outline">Continue Shopping</a>
         </div>
     </div>

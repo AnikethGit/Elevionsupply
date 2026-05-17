@@ -49,7 +49,7 @@ $tabs = ['all','pending','processing','shipped','delivered','cancelled'];
                 </div>
                 <?php endif; ?>
                 <div class="order-card-actions">
-                    <a href="/track.php?order=<?= e($o['order_number']) ?>" class="btn btn-primary btn-sm"><i class="fas fa-map-marker-alt"></i> Track</a>
+                    <a href="/track?order=<?= e($o['order_number']) ?>" class="btn btn-primary btn-sm"><i class="fas fa-map-marker-alt"></i> Track</a>
                     <a href="/orders/detail.php?id=<?= $o['id'] ?>" class="btn btn-outline btn-sm">View Details</a>
                     <?php if (in_array($o['status'],['pending','processing'])): ?>
                     <form method="POST" action="/api/orders/cancel.php" style="display:inline" onsubmit="return confirm('Cancel this order?')">
