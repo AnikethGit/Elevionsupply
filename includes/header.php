@@ -48,6 +48,8 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
             <a href="/catalog.php?category=laptops" class="nav-link">Laptops</a>
             <a href="/catalog.php?category=accessories" class="nav-link">Accessories</a>
             <a href="/catalog.php" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'catalog') !== false ? 'active' : '' ?>">All Products</a>
+            <a href="/about.php" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'about') !== false ? 'active' : '' ?>">About</a>
+            <a href="/contact.php" class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'contact') !== false ? 'active' : '' ?>">Contact</a>
             <?php if ($__user && $__user['role'] === 'admin'): ?>
             <a href="/admin/orders.php" class="nav-link" style="color:var(--gold);font-weight:700"><i class="fas fa-shield-alt"></i> Admin</a>
             <?php endif; ?>
@@ -120,6 +122,8 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
         <a href="/catalog.php?category=laptops" class="mobile-link">Laptops</a>
         <a href="/catalog.php?category=accessories" class="mobile-link">Accessories</a>
         <a href="/catalog.php" class="mobile-link">All Products</a>
+        <a href="/about.php" class="mobile-link">About Us</a>
+        <a href="/contact.php" class="mobile-link">Contact</a>
         <div class="mobile-divider"></div>
         <?php if ($__user): ?>
         <a href="/account/index.php" class="mobile-link">My Account</a>

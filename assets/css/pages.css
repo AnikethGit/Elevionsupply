@@ -1,0 +1,67 @@
+/* ── Shared page styles for About and Contact ─────────────────── */
+
+/* About – mission/values grid */
+.about-grid        { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; padding:72px 0; }
+.about-grid.reverse{ direction:rtl; }
+.about-grid.reverse > * { direction:ltr; }
+.about-img-wrap    { border-radius:var(--radius-xl); overflow:hidden; background:var(--gray-100); aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; font-size:120px; }
+.about-text .tag   { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--accent-dark); margin-bottom:12px; display:block; }
+.about-text h2     { font-family:var(--font-heading); font-size:clamp(24px,3vw,34px); color:var(--primary); margin-bottom:16px; line-height:1.2; }
+.about-text p      { font-size:15px; color:var(--gray-600); line-height:1.8; margin-bottom:16px; }
+
+/* Stats bar */
+.stats-bar         { background:var(--primary); padding:56px 0; }
+.stats-bar-inner   { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; text-align:center; }
+.stat-item .num    { font-family:var(--font-heading); font-size:40px; font-weight:800; color:var(--accent); line-height:1; }
+.stat-item .lbl    { font-size:13px; color:rgba(255,255,255,.65); margin-top:8px; font-weight:300; }
+
+/* Team grid */
+.team-grid         { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+.team-card         { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg); overflow:hidden; transition:box-shadow var(--transition),transform var(--transition); }
+.team-card:hover   { box-shadow:0 8px 32px rgba(0,0,0,.1); transform:translateY(-4px); }
+.team-avatar       { height:200px; display:flex; align-items:center; justify-content:center; font-size:72px; background:linear-gradient(135deg,var(--primary),#1e1e5a); }
+.team-info         { padding:20px; }
+.team-info h3      { font-size:16px; color:var(--primary); margin-bottom:4px; }
+.team-info span    { font-size:12px; color:var(--accent-dark); font-weight:600; text-transform:uppercase; letter-spacing:.08em; }
+.team-info p       { font-size:13px; color:var(--gray-500); margin-top:10px; line-height:1.6; }
+
+/* Values list */
+.values-list       { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.value-card        { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:24px; transition:border-color var(--transition); }
+.value-card:hover  { border-color:var(--accent); }
+.value-icon        { width:44px; height:44px; border-radius:50%; background:rgba(86,207,225,.1); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.value-icon i      { color:var(--accent); font-size:18px; }
+.value-card h3     { font-size:15px; color:var(--primary); margin-bottom:8px; }
+.value-card p      { font-size:13px; color:var(--gray-500); line-height:1.7; }
+
+/* Contact layout */
+.contact-layout    { display:grid; grid-template-columns:1fr 380px; gap:40px; align-items:start; padding:72px 0 80px; }
+.contact-form-wrap { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-xl); padding:40px; }
+.contact-form-wrap h2 { font-size:22px; color:var(--primary); margin-bottom:8px; }
+.contact-form-wrap p  { font-size:14px; color:var(--gray-500); margin-bottom:28px; }
+.contact-form      { display:flex; flex-direction:column; gap:16px; }
+.contact-sidebar   { display:flex; flex-direction:column; gap:20px; }
+.contact-info-card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:24px; }
+.contact-info-card h3 { font-size:15px; color:var(--primary); margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.contact-info-card h3 i { color:var(--accent); }
+.contact-detail    { display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; }
+.contact-detail:last-child { margin-bottom:0; }
+.contact-detail i  { color:var(--accent); font-size:14px; margin-top:2px; flex-shrink:0; width:16px; }
+.contact-detail div .label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--gray-500); margin-bottom:2px; }
+.contact-detail div .value { font-size:14px; color:var(--primary); font-weight:500; }
+
+/* Success message */
+.form-success      { background:rgba(72,187,120,.08); border:1px solid #48bb78; color:#276749; border-radius:var(--radius-md); padding:14px 18px; display:none; align-items:center; gap:10px; font-size:14px; }
+
+@media(max-width:900px){
+  .about-grid     { grid-template-columns:1fr; gap:32px; }
+  .about-grid.reverse { direction:ltr; }
+  .stats-bar-inner{ grid-template-columns:repeat(2,1fr); }
+  .team-grid      { grid-template-columns:1fr 1fr; }
+  .values-list    { grid-template-columns:1fr; }
+  .contact-layout { grid-template-columns:1fr; }
+}
+@media(max-width:480px){
+  .stats-bar-inner{ grid-template-columns:1fr 1fr; }
+  .team-grid      { grid-template-columns:1fr; }
+}

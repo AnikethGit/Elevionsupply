@@ -238,3 +238,15 @@ INSERT INTO products (name, slug, sku, description, price, sale_price, stock_qua
 -- Demo admin user (password: Admin123!)
 INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES
 ('admin@elevionsupply.com', '$2b$10$lSnnzj8Egqr3VuMTudXJ4uHQfyofXi2R0bIVVfPf32fycJCxAliEO', 'Admin', 'User', 'admin');
+
+-- Contact Enquiries
+CREATE TABLE IF NOT EXISTS contact_enquiries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_contact_read (is_read)
+);
