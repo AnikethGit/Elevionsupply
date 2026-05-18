@@ -2,16 +2,28 @@
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
 // ─── Mobile Menu ──────────────────────────────────────────────────
-const menuToggle = document.getElementById('menuToggle');
-const mobileMenu = document.getElementById('mobileMenu');
-if (menuToggle && mobileMenu) {
-    menuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('open');
-        const icon = menuToggle.querySelector('i');
-        icon.classList.toggle('fa-bars');
-        icon.classList.toggle('fa-times');
-    });
+const menuToggle  = document.getElementById('menuToggle');
+const mobileMenu  = document.getElementById('mobileMenu');
+const mobileClose = document.getElementById('mobileClose');
+const mobileOverlay = document.getElementById('mobileOverlay');
+
+function openMenu() {
+    mobileMenu.classList.add('open');
+    mobileOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const icon = menuToggle.querySelector('i');
+    icon.classList.replace('fa-bars','fa-times');
 }
+function closeMenu() {
+    mobileMenu.classList.remove('open');
+    mobileOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    const icon = menuToggle.querySelector('i');
+    icon.classList.replace('fa-times','fa-bars');
+}
+if (menuToggle)    menuToggle.addEventListener('click', openMenu);
+if (mobileClose)   mobileClose.addEventListener('click', closeMenu);
+if (mobileOverlay) mobileOverlay.addEventListener('click', closeMenu);
 
 // ─── Notifications ────────────────────────────────────────────────
 function showNotification(message, type = 'success') {

@@ -108,36 +108,87 @@ $pageDescription = $pageDescription ?? 'Premium tech at wholesale prices';
             <?php endif; ?>
 
             <!-- Mobile Toggle -->
-            <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </div>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <a href="/" class="mobile-link">Home</a>
-        <a href="/catalog.php?category=smartphones" class="mobile-link">Phones</a>
-        <a href="/catalog.php?category=earbuds-audio" class="mobile-link">Audio</a>
-        <a href="/catalog.php?category=laptops" class="mobile-link">Laptops</a>
-        <a href="/catalog.php?category=accessories" class="mobile-link">Accessories</a>
-        <a href="/catalog.php" class="mobile-link">All Products</a>
-        <a href="/about.php" class="mobile-link">About Us</a>
-        <a href="/contact.php" class="mobile-link">Contact</a>
-        <div class="mobile-divider"></div>
+    <!-- Mobile overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation">
+
+        <!-- Header -->
+        <div class="mm-header">
+            <span class="mm-logo">Elevion<span>Supply</span></span>
+            <button class="mm-close" id="mobileClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+        </div>
+
         <?php if ($__user): ?>
-        <a href="/account/index.php" class="mobile-link">My Account</a>
-        <a href="/account/orders.php" class="mobile-link">My Orders</a>
-        <?php if ($__user['role'] === 'admin'): ?>
-        <a href="/admin/orders.php" class="mobile-link" style="color:var(--gold);font-weight:700"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+        <!-- User greeting -->
+        <div class="mm-user">
+            <div class="mm-avatar"><i class="fas fa-user-circle"></i></div>
+            <div class="mm-user-info">
+                <div class="name"><?= e($__user['first_name'].' '.$__user['last_name']) ?></div>
+                <div class="email"><?= e($__user['email']) ?></div>
+            </div>
+        </div>
         <?php endif; ?>
-        <form method="POST" action="/api/auth/logout.php" style="margin:0">
-            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-            <button type="submit" class="mobile-link" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font-family:inherit;font-size:inherit">Sign Out</button>
-        </form>
+
+        <!-- Shop -->
+        <div class="mm-section-label">Shop</div>
+        <a href="/" class="mobile-link <?= $_SERVER['REQUEST_URI']==='/'?'active':'' ?>"><i class="fas fa-home"></i> Home</a>
+        <a href="/catalog.php" class="mobile-link <?= strpos($_SERVER['REQUEST_URI'],'catalog')!==false?'active':'' ?>"><i class="fas fa-th-large"></i> All Products</a>
+        <a href="/catalog.php?category=smartphones" class="mobile-link"><i class="fas fa-mobile-alt"></i> Phones</a>
+        <a href="/catalog.php?category=earbuds-audio" class="mobile-link"><i class="fas fa-headphones"></i> Audio</a>
+        <a href="/catalog.php?category=laptops" class="mobile-link"><i class="fas fa-laptop"></i> Laptops</a>
+        <a href="/catalog.php?category=accessories" class="mobile-link"><i class="fas fa-plug"></i> Accessories</a>
+
+        <div class="mobile-divider"></div>
+
+        <!-- Orders -->
+        <div class="mm-section-label">Orders</div>
+        <a href="/cart.php" class="mobile-link"><i class="fas fa-shopping-cart"></i> Cart
+            <?php if ($__cartCount > 0): ?><span style="margin-left:auto;background:var(--accent);color:var(--primary);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700"><?= $__cartCount ?></span><?php endif; ?>
+        </a>
+        <a href="/track" class="mobile-link"><i class="fas fa-shipping-fast"></i> Track Order</a>
+
+        <div class="mobile-divider"></div>
+
+        <!-- Company -->
+        <div class="mm-section-label">Company</div>
+        <a href="/about.php" class="mobile-link <?= strpos($_SERVER['REQUEST_URI'],'about')!==false?'active':'' ?>"><i class="fas fa-info-circle"></i> About Us</a>
+        <a href="/contact.php" class="mobile-link <?= strpos($_SERVER['REQUEST_URI'],'contact')!==false?'active':'' ?>"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="/help/faq.php" class="mobile-link"><i class="fas fa-question-circle"></i> FAQ</a>
+
+        <div class="mobile-divider"></div>
+
+        <?php if ($__user): ?>
+        <!-- Account -->
+        <div class="mm-section-label">My Account</div>
+        <a href="/account/index.php" class="mobile-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/account/orders.php" class="mobile-link"><i class="fas fa-box"></i> My Orders</a>
+        <a href="/account/addresses.php" class="mobile-link"><i class="fas fa-map-marker-alt"></i> Addresses</a>
+        <a href="/account/settings.php" class="mobile-link"><i class="fas fa-cog"></i> Settings</a>
+        <?php if ($__user['role'] === 'admin'): ?>
+        <div class="mobile-divider"></div>
+        <div class="mm-section-label">Admin</div>
+        <a href="/admin/orders.php" class="mobile-link gold"><i class="fas fa-receipt"></i> Orders</a>
+        <a href="/admin/products.php" class="mobile-link gold"><i class="fas fa-box-open"></i> Products</a>
+        <?php endif; ?>
+        <div class="mm-auth">
+            <form method="POST" action="/api/auth/logout.php" style="margin:0">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                <button type="submit" class="mm-logout-btn"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+            </form>
+        </div>
         <?php else: ?>
-        <a href="/login.php" class="mobile-link">Sign In</a>
-        <a href="/register.php" class="mobile-link">Register</a>
+        <div class="mm-auth">
+            <a href="/login.php" class="btn btn-outline" style="justify-content:center"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+            <a href="/register.php" class="btn btn-primary" style="justify-content:center"><i class="fas fa-user-plus"></i> Register</a>
+        </div>
         <?php endif; ?>
     </div>
 </header>
