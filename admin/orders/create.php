@@ -228,11 +228,16 @@ document.getElementById('customerSearch').addEventListener('input', function() {
 function renderCustomerResults(data) {
     const el = document.getElementById('customerResults');
     if (!data.length) { el.style.display='none'; return; }
-    el.innerHTML = data.map(c => `
-        <div onclick='selectCustomer(${JSON.stringify(c)})' style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--gray-200);font-size:13px"
+    el.innerHTML = data.map((c,i) => `
+        <div class="sr-cust" data-idx="${i}"
+             style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--gray-200);font-size:13px"
              onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background=''">
             <strong>${c.first_name} ${c.last_name}</strong> — ${c.email}
         </div>`).join('');
+    const custData = data;
+    el.querySelectorAll('.sr-cust').forEach(row => {
+        row.addEventListener('click', () => selectCustomer(custData[+row.dataset.idx]));
+    });
     el.style.display = 'block';
 }
 
@@ -274,12 +279,17 @@ document.getElementById('productSearch').addEventListener('input', function() {
 function renderProductResults(data) {
     const el = document.getElementById('productResults');
     if (!data.length) { el.style.display='none'; return; }
-    el.innerHTML = data.map(p => `
-        <div onclick='addProduct(${JSON.stringify(p)})' style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--gray-200);font-size:13px;display:flex;justify-content:space-between"
+    el.innerHTML = data.map((p,i) => `
+        <div class="sr-prod" data-idx="${i}"
+             style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--gray-200);font-size:13px;display:flex;justify-content:space-between"
              onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background=''">
             <span><strong>${p.name}</strong> <span style="color:var(--gray-500)">(${p.sku})</span></span>
-            <span style="font-weight:700;color:var(--primary)">$${parseFloat(p.price).toFixed(2)}</span>
+            <span style="font-weight:700;color:var(--primary)">£${parseFloat(p.price).toFixed(2)}</span>
         </div>`).join('');
+    const prodData = data;
+    el.querySelectorAll('.sr-prod').forEach(row => {
+        row.addEventListener('click', () => addProduct(prodData[+row.dataset.idx]));
+    });
     el.style.display = 'block';
 }
 
