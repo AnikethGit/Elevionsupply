@@ -219,26 +219,30 @@ foreach ([$cDescX,$cUnitX,$cTaxX,$cSubX] as $cx) {
 $y += $hdrH;
 
 // ── ITEMS ROWS ────────────────────────────────────────────────────
-$rowH2 = 20;
+$rowH2 = 30;
 $taxRate = 0.08875;
 foreach ($order['items'] as $idx => $item) {
     $bg = ($idx % 2 === 1) ? [$AR,$AG,$AB] : [255,255,255];
     $pdf->setFill(...$bg);
     $pdf->fillRect($ML, $y, $CW, $rowH2);
 
-    $rY = $y + 7;
+    $rY = $y + 6;
     $price    = (float)$item['unit_price'];
     $qty      = (int)$item['quantity'];
     $lineSub  = $price * $qty;
     $lineTax  = round($lineSub * $taxRate, 2);
     $name     = $item['product_name'];
-    if (strlen($name) > 48) $name = substr($name, 0, 46).'...';
+    $sku      = $item['product_sku'] ?? '';
 
     $pdf->setFont(8, true);  $pdf->setTextColor($IR,$IG,$IB);
     $pdf->text($cQtyX + 4, $rY, (string)$qty);
 
-    $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
+    $pdf->setFont(8, false); $pdf->setTextColor($IR,$IG,$IB);
     $pdf->text($cDescX + 2, $rY, $name);
+    if ($sku) {
+        $pdf->setFont(7, false); $pdf->setTextColor($UR,$UG,$UB);
+        $pdf->text($cDescX + 2, $rY + 11, $sku);
+    }
 
     $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
     $pdf->text($cUnitX, $rY, $fmt($price),   'R', $cUnitW - 2);
