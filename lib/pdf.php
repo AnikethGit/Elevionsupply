@@ -142,7 +142,28 @@ class PDF
     }
 
     /**
-     * Render a QR code matrix as filled squares.
+     * Draw multi-line text that wraps within $maxW pt.
+     * Returns the Y position after the last line.
+     */
+    public function multilineText(float $x, float $y, string $str,
+                                   float $maxW, float $lineH = 0): float
+    {
+        if ($lineH <= 0) $lineH = $this->sz * 1.4;
+        $words = explode(' ', $str);
+        $line  = '';
+        foreach ($words as $word) {
+            $test = $line === '' ? $word : "$line $word";
+            if ($this->tw($test) <= $maxW) {
+                $line = $test;
+            } else {
+                if ($line !== '') { $this->text($x, $y, $line); $y += $lineH; }
+                // If single word wider than column, just print it (will clip)
+                $line = $word;
+            }
+        }
+        if ($line !== '') { $this->text($x, $y, $line); $y += $lineH; }
+        return $y;
+    }
      * @param array $matrix  2D bool array from QRCode::matrix()
      * @param float $x       top-left x (pt)
      * @param float $y       top-left y (pt)

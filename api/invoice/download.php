@@ -219,14 +219,9 @@ foreach ([$cDescX,$cUnitX,$cTaxX,$cSubX] as $cx) {
 $y += $hdrH;
 
 // ── ITEMS ROWS ────────────────────────────────────────────────────
-$rowH2 = 30;
-$taxRate = 0.08875;
+$taxRate  = 0.08875;
+$nameLineH = 10;   // line height for wrapped name
 foreach ($order['items'] as $idx => $item) {
-    $bg = ($idx % 2 === 1) ? [$AR,$AG,$AB] : [255,255,255];
-    $pdf->setFill(...$bg);
-    $pdf->fillRect($ML, $y, $CW, $rowH2);
-
-    $rY = $y + 6;
     $price    = (float)$item['unit_price'];
     $qty      = (int)$item['quantity'];
     $lineSub  = $price * $qty;
@@ -234,22 +229,46 @@ foreach ($order['items'] as $idx => $item) {
     $name     = $item['product_name'];
     $sku      = $item['product_sku'] ?? '';
 
-    $pdf->setFont(8, true);  $pdf->setTextColor($IR,$IG,$IB);
-    $pdf->text($cQtyX + 4, $rY, (string)$qty);
+    // Pre-calculate how many lines the name needs
+    $descMaxW = $cDescW - 4;
+    $pdf->setFont(8, false);
+    $words    = explode(' ', $name);
+    $lines    = 1; $testLine = '';
+    foreach ($words as $w) {
+        $test = $testLine === '' ? $w : "$testLine $w";
+        if ($pdf->tw($test) <= $descMaxW) { $testLine = $test; }
+        else { $lines++; $testLine = $w; }
+    }
+    $rowH2 = max(26, $lines * $nameLineH + ($sku ? 13 : 4) + 6);
 
+    $bg = ($idx % 2 === 1) ? [$AR,$AG,$AB] : [255,255,255];
+    $pdf->setFill(...$bg);
+    $pdf->fillRect($ML, $y, $CW, $rowH2);
+
+    $rY = $y + 6;
+
+    // QTY — vertically centred
+    $pdf->setFont(8, true);  $pdf->setTextColor($IR,$IG,$IB);
+    $pdf->text($cQtyX + 4, $y + $rowH2/2 - 3, (string)$qty);
+
+    // Name (wrapped)
     $pdf->setFont(8, false); $pdf->setTextColor($IR,$IG,$IB);
-    $pdf->text($cDescX + 2, $rY, $name);
+    $afterName = $pdf->multilineText($cDescX + 2, $rY, $name, $descMaxW, $nameLineH);
+
+    // SKU below name
     if ($sku) {
         $pdf->setFont(7, false); $pdf->setTextColor($UR,$UG,$UB);
-        $pdf->text($cDescX + 2, $rY + 11, $sku);
+        $pdf->text($cDescX + 2, $afterName, $sku);
     }
 
+    // Numeric columns — vertically centred in row
+    $vY = $y + $rowH2/2 - 3;
     $pdf->setFont(8, false); $pdf->setTextColor($MR,$MG,$MB);
-    $pdf->text($cUnitX, $rY, $fmt($price),   'R', $cUnitW - 2);
-    $pdf->text($cTaxX,  $rY, $fmt($lineTax), 'R', $cTaxW  - 2);
+    $pdf->text($cUnitX, $vY, $fmt($price),   'R', $cUnitW - 2);
+    $pdf->text($cTaxX,  $vY, $fmt($lineTax), 'R', $cTaxW  - 2);
 
     $pdf->setFont(8.5, true); $pdf->setTextColor($IR,$IG,$IB);
-    $pdf->text($cSubX, $rY, $fmt($lineSub), 'R', $cSubW - 2);
+    $pdf->text($cSubX, $vY, $fmt($lineSub), 'R', $cSubW - 2);
 
     // Row divider + column lines
     $pdf->setDraw($BR,$BG,$BB); $pdf->setLineWidth(0.3);
