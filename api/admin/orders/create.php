@@ -43,6 +43,10 @@ try {
         $qty = max(1, (int)($item['quantity'] ?? 1));
         $p   = get_product($pid);
         if (!$p) { $db->rollBack(); json_error("Product ID $pid not found."); }
+        if ($qty > (int)$p['stock_quantity']) {
+            $db->rollBack();
+            json_error("Only {$p['stock_quantity']} of \"{$p['name']}\" in stock.");
+        }
         $price    = isset($item['unit_price']) ? (float)$item['unit_price'] : $p['display_price'];
         $subtotal += $price * $qty;
         $lines[]  = ['product_id'=>$pid,'name'=>$p['name'],'sku'=>$p['sku'],'qty'=>$qty,'price'=>$price];
@@ -76,6 +80,12 @@ try {
         VALUES (?,?,?,?,?,?,?)");
     foreach ($lines as $l) {
         $iStmt->execute([$orderId,$l['product_id'],$l['name'],$l['sku'],$l['qty'],$l['price'],$l['price']*$l['qty']]);
+        // Decrement stock; guard against concurrent overselling
+        $dec = $db->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?");
+        $dec->execute([$l['qty'], $l['product_id'], $l['qty']]);
+        if ($dec->rowCount() === 0) {
+            throw new Exception("Insufficient stock for product ID {$l['product_id']} at time of order creation.");
+        }
     }
 
     // ── Payment record ────────────────────────────────────────────

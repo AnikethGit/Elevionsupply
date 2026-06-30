@@ -19,6 +19,19 @@ if ($quantity < 1) {
     $stmt = db()->prepare("DELETE FROM cart_items WHERE id = ? AND cart_id = ?");
     $stmt->execute([$itemId, $cartId]);
 } else {
+    // Look up the product's stock for this cart item
+    $stmt = db()->prepare("
+        SELECT p.stock_quantity
+        FROM cart_items ci JOIN products p ON p.id = ci.product_id
+        WHERE ci.id = ? AND ci.cart_id = ?
+    ");
+    $stmt->execute([$itemId, $cartId]);
+    $row = $stmt->fetch();
+    if (!$row) json_error('Item not found in cart', 404);
+    if ($quantity > (int)$row['stock_quantity']) {
+        json_error('Only ' . $row['stock_quantity'] . ' in stock.');
+    }
+
     $stmt = db()->prepare("UPDATE cart_items SET quantity = ? WHERE id = ? AND cart_id = ?");
     $stmt->execute([$quantity, $itemId, $cartId]);
 }

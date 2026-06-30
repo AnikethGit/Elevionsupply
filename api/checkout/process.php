@@ -23,6 +23,18 @@ $items  = get_cart_items($cartId);
 
 if (empty($items)) json_error('Cart is empty');
 
+// Re-validate stock at checkout time — cart items can go stale
+// (another customer may have bought the remaining stock since add-to-cart)
+foreach ($items as $item) {
+    $stmt = db()->prepare("SELECT stock_quantity, name FROM products WHERE id = ?");
+    $stmt->execute([$item['product_id']]);
+    $p = $stmt->fetch();
+    if (!$p) json_error('A product in your cart is no longer available.');
+    if ($item['quantity'] > (int)$p['stock_quantity']) {
+        json_error('Only ' . $p['stock_quantity'] . ' of "' . $p['name'] . '" in stock. Please update your cart.');
+    }
+}
+
 // Validate card (mock)
 $cardNumber = preg_replace('/\s+/', '', $body['card_number'] ?? '');
 if (strlen($cardNumber) < 13) json_error('Invalid card number');
@@ -127,6 +139,12 @@ try {
             $item['unit_price'],
             $item['subtotal'],
         ]);
+        // Decrement stock; guard against concurrent overselling
+        $dec = $db->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?");
+        $dec->execute([$item['quantity'], $item['product_id'], $item['quantity']]);
+        if ($dec->rowCount() === 0) {
+            throw new Exception("Insufficient stock for product ID {$item['product_id']} at time of purchase.");
+        }
     }
 
     // ── Payment record ────────────────────────────────────────────

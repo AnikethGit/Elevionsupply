@@ -24,6 +24,11 @@ $stmt = db()->prepare("SELECT id, quantity FROM cart_items WHERE cart_id = ? AND
 $stmt->execute([$cartId, $productId]);
 $existing = $stmt->fetch();
 
+$currentQty = $existing ? (int)$existing['quantity'] : 0;
+if ($currentQty + $quantity > $product['stock_quantity']) {
+    json_error('Only ' . $product['stock_quantity'] . ' in stock (you already have ' . $currentQty . ' in your cart).');
+}
+
 if ($existing) {
     $stmt = db()->prepare("UPDATE cart_items SET quantity = quantity + ? WHERE id = ?");
     $stmt->execute([$quantity, $existing['id']]);

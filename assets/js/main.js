@@ -99,6 +99,9 @@ async function updateCartQty(itemId, quantity) {
         if (data.success) {
             updateCartUI(data.cart_count, data.cart_total);
             if (typeof refreshCartTotals === 'function') refreshCartTotals(data);
+        } else {
+            showNotification(data.message || 'Could not update quantity.', 'error');
+            if (typeof refreshCartTotals === 'function' && data.items) refreshCartTotals(data);
         }
     } catch {
         showNotification('Network error.', 'error');
